@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum HRMS — Workforce Operating Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy-950:#0B0F19;
+  --navy-900:#111726;
+  --navy-800:#171F33;
+  --navy-700:#232D48;
+  --steel-500:#5A6B8C;
+  --steel-300:#9FABC7;
+  --paper:#F5F6FA;
+  --paper-card:#FFFFFF;
+  --line:#E4E7F0;
+  --amber-500:#FF8A3D;
+  --amber-600:#EA6F1F;
+  --amber-100:#FFE7D3;
+  --teal-500:#17A589;
+  --teal-100:#DFF6F0;
+  --red-500:#E5484D;
+  --red-100:#FCE3E3;
+  --blue-500:#3D6BFF;
+  --blue-100:#E3E9FF;
+  --text-900:#131826;
+  --text-600:#525C74;
+  --text-400:#8891A8;
+}
+*{box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--paper);
+  color:var(--text-900);
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,h5,.brand,.metric-value,.section-title{
+  font-family:'Manrope',sans-serif;
+}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#CBD2E3;border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ===== Shell layout ===== */
+.app-shell{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:248px;
+  flex-shrink:0;
+  background:linear-gradient(180deg,var(--navy-950) 0%, var(--navy-900) 100%);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  top:0;bottom:0;left:0;
+  z-index:1030;
+  transition:transform .25s ease;
+}
+.brand-block{
+  padding:22px 20px 16px 20px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--amber-500),var(--amber-600));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#12131a;font-size:15px;
+  box-shadow:0 4px 14px rgba(255,138,61,.35);
+}
+.brand-name{font-weight:800;font-size:16.5px;letter-spacing:.2px;line-height:1.1;}
+.brand-sub{font-size:10.5px;color:var(--steel-300);font-weight:600;letter-spacing:.4px;}
+
+.nav-scroll{flex:1;overflow-y:auto;padding:14px 12px 12px;}
+.nav-group-label{
+  font-size:10.5px;color:#5D6884;font-weight:700;letter-spacing:.6px;
+  padding:14px 10px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 11px;border-radius:9px;
+  color:#B7C0D9;text-decoration:none;font-size:13.6px;font-weight:600;
+  cursor:pointer;margin-bottom:2px;position:relative;
+  transition:background .15s, color .15s;
+}
+.nav-item i{width:17px;text-align:center;font-size:14px;color:#7885A6;transition:color .15s;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item:hover i{color:var(--amber-500);}
+.nav-item.active{background:rgba(255,138,61,.12);color:#fff;}
+.nav-item.active i{color:var(--amber-500);}
+.nav-item.active::before{
+  content:'';position:absolute;left:-12px;top:8px;bottom:8px;width:3px;
+  background:var(--amber-500);border-radius:3px;
+}
+.nav-item .badge-pill{
+  margin-left:auto;background:rgba(255,255,255,.08);color:#C7CFE4;
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+}
+
+.sidebar-footer{
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:10px;
+}
+.user-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#3D6BFF,#7C3DFF);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;
+}
+.user-name{font-size:12.5px;font-weight:700;color:#fff;}
+.user-role{font-size:10.5px;color:var(--steel-300);}
+
+/* Main column */
+.main-col{margin-left:248px;flex:1;display:flex;flex-direction:column;min-width:0;}
+
+/* Topbar */
+.topbar{
+  height:64px;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;position:sticky;top:0;z-index:1020;
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+#menuToggle{display:none;background:none;border:none;font-size:19px;color:var(--text-600);}
+.page-title{font-size:18px;font-weight:800;margin:0;}
+.page-crumb{font-size:11.5px;color:var(--text-400);font-weight:600;}
+.search-box{
+  background:var(--paper);border:1px solid var(--line);border-radius:9px;
+  padding:8px 12px;display:flex;align-items:center;gap:8px;width:300px;color:var(--text-400);
+}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;width:100%;color:var(--text-900);}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.icon-btn{
+  width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:#fff;
+  display:flex;align-items:center;justify-content:center;color:var(--text-600);position:relative;font-size:14px;
+}
+.icon-btn .dot{position:absolute;top:7px;right:7px;width:6px;height:6px;background:var(--amber-500);border-radius:50%;}
+.tenant-chip{
+  display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--text-600);background:#fff;
+}
+.tenant-chip .dotcolor{width:8px;height:8px;border-radius:50%;background:var(--teal-500);}
+
+/* Content area */
+.content{padding:24px 26px 50px;}
+.view{display:none;animation:fadein .25s ease;}
+.view.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.section-title{font-size:15.5px;font-weight:800;margin-bottom:2px;}
+.section-sub{font-size:12.5px;color:var(--text-400);margin-bottom:16px;}
+
+/* Cards */
+.card-panel{
+  background:var(--paper-card);border:1px solid var(--line);border-radius:14px;
+  padding:20px;box-shadow:0 1px 2px rgba(20,25,45,.03);
+}
+.metric-card{
+  background:var(--paper-card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+  display:flex;flex-direction:column;gap:6px;height:100%;
+}
+.metric-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.metric-icon{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.metric-label{font-size:12px;color:var(--text-400);font-weight:600;}
+.metric-value{font-size:24px;font-weight:800;}
+.metric-delta{font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:4px;}
+.delta-up{color:var(--teal-500);}
+.delta-down{color:var(--red-500);}
+
+.badge-status{
+  font-size:10.8px;font-weight:700;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;
+}
+.st-hot{background:var(--red-100);color:#C0282D;}
+.st-warm{background:var(--amber-100);color:#B75A16;}
+.st-cold{background:var(--blue-100);color:#2E4FCC;}
+.st-won{background:var(--teal-100);color:#0E8069;}
+.st-new{background:#EEF0F6;color:var(--text-600);}
+.st-active{background:var(--teal-100);color:#0E8069;}
+.st-pending{background:var(--amber-100);color:#B75A16;}
+.st-overdue{background:var(--red-100);color:#C0282D;}
+.st-paid{background:var(--teal-100);color:#0E8069;}
+.st-review{background:var(--blue-100);color:#2E4FCC;}
+
+.table-modern{width:100%;border-collapse:collapse;font-size:13px;}
+.table-modern thead th{
+  text-align:left;font-size:10.8px;letter-spacing:.3px;color:var(--text-400);font-weight:700;
+  padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.table-modern tbody td{padding:12px;border-bottom:1px solid #EEF0F6;vertical-align:middle;color:var(--text-900);}
+.table-modern tbody tr{transition:background .12s;cursor:default;}
+.table-modern tbody tr:hover{background:#FAFBFD;}
+.table-modern tbody tr:last-child td{border-bottom:none;}
+.cell-strong{font-weight:700;}
+.cell-sub{font-size:11.3px;color:var(--text-400);}
+.avatar-sm{
+  width:30px;height:30px;border-radius:50%;background:var(--navy-800);color:#fff;font-size:11.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.row-flex{display:flex;align-items:center;gap:10px;}
+
+.btn-amber{background:var(--amber-500);border:none;color:#fff;font-weight:700;font-size:13px;padding:9px 16px;border-radius:9px;}
+.btn-amber:hover{background:var(--amber-600);color:#fff;}
+.btn-outline-soft{background:#fff;border:1px solid var(--line);color:var(--text-600);font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:9px;}
+.btn-outline-soft:hover{background:var(--paper);}
+.btn-ghost-sm{background:transparent;border:none;color:var(--text-400);font-size:13px;padding:4px 8px;}
+.btn-ghost-sm:hover{color:var(--navy-900);}
+
+.chip-filter{
+  border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--text-600);cursor:pointer;
+}
+.chip-filter.active{background:var(--navy-900);color:#fff;border-color:var(--navy-900);}
+
+.progress-thin{height:6px;border-radius:6px;background:#EEF0F6;overflow:hidden;}
+.progress-thin > span{display:block;height:100%;border-radius:6px;}
+
+.tab-strip{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;}
+.tab-strip .tabit{
+  padding:10px 4px;margin-right:22px;font-size:13px;font-weight:700;color:var(--text-400);
+  border-bottom:2px solid transparent;cursor:pointer;
+}
+.tab-strip .tabit.active{color:var(--navy-900);border-color:var(--amber-500);}
+
+.kanban-col{background:#F2F3F8;border-radius:12px;padding:12px;min-width:230px;flex:1;}
+.kanban-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12.5px;font-weight:800;}
+.kanban-card{
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:9px;
+  font-size:12.5px;box-shadow:0 1px 2px rgba(20,25,45,.04);cursor:pointer;
+}
+.kanban-card:hover{border-color:var(--amber-500);}
+.kanban-card .kc-title{font-weight:700;font-size:13px;margin-bottom:3px;}
+.kanban-card .kc-meta{color:var(--text-400);font-size:11px;}
+.kanban-card .kc-value{font-weight:800;color:var(--navy-900);font-size:12.5px;margin-top:6px;}
+
+.flow-step{
+  flex:1;min-width:120px;text-align:center;position:relative;padding:14px 8px;
+}
+.flow-step .fs-num{
+  width:30px;height:30px;border-radius:50%;background:var(--navy-900);color:#fff;font-weight:800;font-size:12.5px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+}
+.flow-step.done .fs-num{background:var(--teal-500);}
+.flow-step .fs-label{font-size:11.5px;font-weight:700;}
+.flow-step .fs-sub{font-size:10px;color:var(--text-400);}
+.flow-line{position:absolute;top:29px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0;}
+.flow-step:first-child .flow-line{display:none;}
+.flow-step.done .flow-line{background:var(--teal-500);}
+
+.info-list{list-style:none;padding:0;margin:0;}
+.info-list li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #EEF0F6;font-size:12.8px;}
+.info-list li:last-child{border-bottom:none;}
+.info-list .il-label{color:var(--text-400);font-weight:600;}
+.info-list .il-value{font-weight:700;}
+
+.punch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.punch-card{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff;}
+.punch-card.absent{background:#FFF7F5;border-color:#FBD9D6;}
+.punch-status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
+
+.modal-content{border-radius:16px;border:none;}
+.form-label{font-size:12.5px;font-weight:700;color:var(--text-600);}
+.form-control,.form-select{border-radius:9px;border:1px solid var(--line);font-size:13px;padding:9px 11px;}
+.form-control:focus,.form-select:focus{border-color:var(--amber-500);box-shadow:0 0 0 3px rgba(255,138,61,.12);}
+
+.payslip-box{background:var(--navy-950);color:#fff;border-radius:16px;padding:22px;}
+.payslip-box .ps-net{font-size:30px;font-weight:800;color:var(--amber-500);}
+
+.integration-tile{
+  border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;display:flex;gap:12px;align-items:flex-start;
+}
+.integration-tile .it-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+
+/* ===== Login Screen ===== */
+#loginScreen{
+  position:fixed;inset:0;z-index:2000;
+  background:radial-gradient(circle at 20% 20%, #1B2338 0%, var(--navy-950) 55%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-card{
+  width:100%;max-width:960px;background:#fff;border-radius:20px;overflow:hidden;
+  display:flex;box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+.login-side{
+  width:320px;flex-shrink:0;background:linear-gradient(160deg,var(--navy-950),var(--navy-800));
+  color:#fff;padding:38px 30px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.login-side .ls-mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--amber-500),var(--amber-600));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#12131a;margin-bottom:16px;}
+.login-side h4{font-weight:800;font-size:19px;margin-bottom:8px;}
+.login-side p{font-size:12.8px;color:#9FABC7;line-height:1.6;}
+.login-flow-mini{font-size:11px;color:#7885A6;line-height:2;}
+.login-main{flex:1;padding:38px 40px;}
+.role-card{
+  border:1.5px solid var(--line);border-radius:13px;padding:16px;cursor:pointer;display:flex;gap:13px;align-items:flex-start;
+  transition:border-color .15s, background .15s;margin-bottom:12px;
+}
+.role-card:hover{border-color:var(--amber-500);background:#FFF9F4;}
+.role-card.selected{border-color:var(--amber-500);background:#FFF3E9;}
+.role-card .rc-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.role-card .rc-title{font-weight:800;font-size:13.8px;margin-bottom:2px;}
+.role-card .rc-desc{font-size:11.8px;color:var(--text-400);line-height:1.5;}
+.role-badge-top{
+  font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,138,61,.14);color:var(--amber-500);
+  display:inline-block;margin-bottom:4px;
+}
+@media(max-width:767px){
+  .login-card{flex-direction:column;}
+  .login-side{width:100%;}
+}
+
+@media(max-width:991px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-col{margin-left:0;}
+  #menuToggle{display:block;}
+  .search-box{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-side">
+      <div>
+        <div class="ls-mark">Q</div>
+        <h4>Quantum HRMS</h4>
+        <p>White-label workforce operating platform — CRM, recruitment, payroll, compliance, GST billing and finance in one system.</p>
+      </div>
+      <div class="login-flow-mini">
+        Lead → Client Won<br>
+        Manpower → Recruitment<br>
+        Onboarding → Deployment<br>
+        Attendance → Payroll<br>
+        Compliance → GST Billing<br>
+        Finance → Profitability
+      </div>
+    </div>
+    <div class="login-main">
+      <span class="role-badge-top">DEMO LOGIN · STATIC DATA</span>
+      <h5 class="fw-bold mb-1" style="font-size:19px;">Sign in to continue</h5>
+      <p class="cell-sub mb-3">Choose a role to preview what that login sees. Every role is a real, separate login in the actual product.</p>
+
+      <div class="role-card" data-role="whitelabel">
+        <div class="rc-icon" style="background:var(--navy-900);color:#fff;"><i class="fa-solid fa-crown"></i></div>
+        <div>
+          <div class="rc-title">White-Label Admin</div>
+          <div class="rc-desc">One login. Owns the platform — creates companies, sets subscription plans, controls branding.</div>
+        </div>
+      </div>
+      <div class="role-card" data-role="company">
+        <div class="rc-icon" style="background:var(--blue-100);color:var(--blue-500);"><i class="fa-solid fa-building"></i></div>
+        <div>
+          <div class="rc-title">Company Admin</div>
+          <div class="rc-desc">One login per client company. Full control of that company only — CRM, workforce, payroll, billing, finance.</div>
+        </div>
+      </div>
+      <div class="role-card" data-role="employee">
+        <div class="rc-icon" style="background:var(--teal-100);color:var(--teal-500);"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="rc-title">Employee Self-Service</div>
+          <div class="rc-desc">One login per employee. Own attendance, payslips, leave requests and helpdesk only.</div>
+        </div>
+      </div>
+
+      <button class="btn btn-amber w-100 mt-2" id="btnLogin" disabled onclick="doLogin()">Continue <i class="fa-solid fa-arrow-right ms-1"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-block">
+      <div class="brand-mark">Q</div>
+      <div>
+        <div class="brand-name">Quantum HRMS</div>
+        <div class="brand-sub">SUMMIT LOGISTICS GROUP</div>
+      </div>
+    </div>
+    <div class="nav-scroll" id="navScroll"></div>
+    <div class="sidebar-footer">
+      <div class="user-avatar" id="sbAvatar">NR</div>
+      <div class="flex-fill">
+        <div class="user-name" id="sbName">Nishaanth R</div>
+        <div class="user-role" id="sbRole">Company Admin</div>
+      </div>
+      <button class="icon-btn" style="width:30px;height:30px;background:transparent;border-color:rgba(255,255,255,.15);color:#9FABC7;" onclick="logout()" title="Switch login"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-col">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <p class="page-crumb" id="pageCrumb">Overview</p>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+        </div>
+      </div>
+      <div class="topbar-left search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search employees, leads, invoices…">
+      </div>
+      <div class="topbar-right">
+        <div class="tenant-chip"><span class="dotcolor"></span>Live Demo · Static Data</div>
+        <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+        <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= DASHBOARD ================= -->
+      <div class="view active" id="view-dashboard">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Active Employees</span>
+                <div class="metric-icon" style="background:var(--blue-100);color:var(--blue-500);"><i class="fa-solid fa-users"></i></div>
+              </div>
+              <div class="metric-value">2,184</div>
+              <div class="metric-delta delta-up"><i class="fa-solid fa-arrow-up"></i> 4.2% vs last month</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Open Vacancies</span>
+                <div class="metric-icon" style="background:var(--amber-100);color:var(--amber-600);"><i class="fa-solid fa-briefcase"></i></div>
+              </div>
+              <div class="metric-value">146</div>
+              <div class="metric-delta delta-down"><i class="fa-solid fa-arrow-down"></i> 12 filled this week</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Payroll Cost (MTD)</span>
+                <div class="metric-icon" style="background:var(--teal-100);color:var(--teal-500);"><i class="fa-solid fa-sack-dollar"></i></div>
+              </div>
+              <div class="metric-value">₹3.86 Cr</div>
+              <div class="metric-delta delta-up"><i class="fa-solid fa-arrow-up"></i> On track, 91% processed</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">GST Receivables</span>
+                <div class="metric-icon" style="background:var(--red-100);color:var(--red-500);"><i class="fa-solid fa-file-invoice"></i></div>
+              </div>
+              <div class="metric-value">₹1.24 Cr</div>
+              <div class="metric-delta delta-down"><i class="fa-solid fa-triangle-exclamation"></i> ₹18.4L overdue</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-8">
+            <div class="card-panel h-100">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <div class="section-title">Workforce Deployment vs Demand</div>
+                  <div class="section-sub">Last 6 months, all sites and vendors</div>
+                </div>
+                <div class="d-flex gap-2">
+                  <span class="chip-filter active" style="font-size:11px;padding:5px 12px;">Deployed</span>
+                  <span class="chip-filter" style="font-size:11px;padding:5px 12px;">Required</span>
+                </div>
+              </div>
+              <canvas id="chartDeployment" height="110"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card-panel h-100">
+              <div class="section-title mb-1">Sales Pipeline</div>
+              <div class="section-sub">Weighted forecast value</div>
+              <canvas id="chartPipeline" height="180"></canvas>
+              <div class="d-flex justify-content-between mt-2" style="font-size:12px;">
+                <span class="text-muted fw-semibold">Total pipeline</span>
+                <span class="fw-bold">₹4.9 Cr</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="card-panel h-100">
+              <div class="section-title mb-3">End-to-End Business Flow</div>
+              <div class="d-flex flex-column gap-2" style="font-size:12.5px;">
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check" style="color:var(--teal-500);"></i> Lead → Client Won <span class="ms-auto fw-bold">18 this month</span></div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check" style="color:var(--teal-500);"></i> Vacancy → Job Posting <span class="ms-auto fw-bold">61 live</span></div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check" style="color:var(--teal-500);"></i> Screening → Offer <span class="ms-auto fw-bold">27 offers out</span></div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-clock" style="color:var(--amber-500);"></i> KYC / BGV in progress <span class="ms-auto fw-bold">42 pending</span></div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check" style="color:var(--teal-500);"></i> Payroll → Client Billing <span class="ms-auto fw-bold">₹3.86 Cr</span></div>
+                <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red-500);"></i> Overdue invoices <span class="ms-auto fw-bold">6 clients</span></div>
+              </div>
+              <button class="btn btn-outline-soft w-100 mt-3" data-goto="manpower">View full flow <i class="fa-solid fa-arrow-right ms-1"></i></button>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card-panel h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="section-title mb-0">Compliance Status</div>
+                <span class="badge-status st-active">On track</span>
+              </div>
+              <ul class="info-list">
+                <li><span class="il-label">PF (ECR) — Aug 2026</span><span class="il-value" style="color:var(--teal-500);">Filed</span></li>
+                <li><span class="il-label">ESIC Contribution</span><span class="il-value" style="color:var(--teal-500);">Filed</span></li>
+                <li><span class="il-label">TDS Challan 281</span><span class="il-value" style="color:var(--amber-600);">Due in 4 days</span></li>
+                <li><span class="il-label">PT — Karnataka</span><span class="il-value" style="color:var(--teal-500);">Filed</span></li>
+                <li><span class="il-label">LWF — Maharashtra</span><span class="il-value" style="color:var(--text-400);">Not due</span></li>
+              </ul>
+              <button class="btn btn-outline-soft w-100 mt-3" data-goto="compliance">Open compliance centre <i class="fa-solid fa-arrow-right ms-1"></i></button>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card-panel h-100">
+              <div class="section-title mb-3">Recruitment Funnel — This Month</div>
+              <canvas id="chartFunnelMini" height="150"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= CRM ================= -->
+      <div class="view" id="view-crm">
+        <div class="tab-strip">
+          <div class="tabit active" data-crmtab="pipeline">Pipeline</div>
+          <div class="tabit" data-crmtab="leads">All Leads</div>
+          <div class="tabit" data-crmtab="proposals">Proposals</div>
+          <div class="tabit" data-crmtab="campaigns">Campaigns</div>
+        </div>
+
+        <div id="crm-pipeline">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="section-title">Sales Pipeline — Staffing &amp; Payroll Deals</div>
+              <div class="section-sub">Drag context aside — click any card for details · ₹4.9 Cr weighted</div>
+            </div>
+            <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#modalAddLead"><i class="fa-solid fa-plus me-1"></i>New Lead</button>
+          </div>
+          <div class="d-flex gap-3 overflow-auto pb-2" id="kanbanBoard"></div>
+        </div>
+
+        <div id="crm-leads" style="display:none;">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="chip-filter active" data-leadfilter="All">All</span>
+              <span class="chip-filter" data-leadfilter="Hot">Hot</span>
+              <span class="chip-filter" data-leadfilter="Warm">Warm</span>
+              <span class="chip-filter" data-leadfilter="Cold">Cold</span>
+              <span class="chip-filter" data-leadfilter="Won">Won</span>
+            </div>
+            <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#modalAddLead"><i class="fa-solid fa-plus me-1"></i>New Lead</button>
+          </div>
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr>
+                  <th>Company</th><th>Contact</th><th>Requirement</th><th>Headcount</th><th>Est. Value</th><th>Grade</th><th>Owner</th><th>Stage</th>
+                </tr></thead>
+                <tbody id="leadsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="crm-proposals" style="display:none;">
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="card-panel">
+                <div class="section-title mb-3">Proposal Builder — Rate Card (demo)</div>
+                <div class="row g-3">
+                  <div class="col-md-6"><label class="form-label">Client</label><select class="form-select"><option>Skyline Retail Pvt Ltd</option><option>Everest Cold Chain</option></select></div>
+                  <div class="col-md-6"><label class="form-label">Headcount</label><input type="number" class="form-control" id="pcHeadcount" value="120"></div>
+                  <div class="col-md-6"><label class="form-label">CTC / head / month (₹)</label><input type="number" class="form-control" id="pcCtc" value="18500"></div>
+                  <div class="col-md-6"><label class="form-label">Markup %</label><input type="number" class="form-control" id="pcMarkup" value="14"></div>
+                  <div class="col-md-6"><label class="form-label">GST %</label><input type="number" class="form-control" id="pcGst" value="18"></div>
+                  <div class="col-md-6 d-flex align-items-end"><button class="btn btn-amber w-100" onclick="calcProposal()">Compute Billing Value</button></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card-panel h-100">
+                <div class="section-title mb-3">Computed Proposal</div>
+                <ul class="info-list">
+                  <li><span class="il-label">Monthly CTC Base</span><span class="il-value" id="pOutBase">₹22,20,000</span></li>
+                  <li><span class="il-label">Service Markup</span><span class="il-value" id="pOutMarkup">₹3,10,800</span></li>
+                  <li><span class="il-label">Billing Value (excl. GST)</span><span class="il-value" id="pOutSub">₹25,30,800</span></li>
+                  <li><span class="il-label">GST</span><span class="il-value" id="pOutGst">₹4,55,544</span></li>
+                  <li><span class="il-label fw-bold">Total Invoice Value</span><span class="il-value fw-bold" id="pOutTotal" style="color:var(--amber-600);font-size:15px;">₹29,86,344</span></li>
+                </ul>
+                <div class="cell-sub mt-2">Auto-computed from CTC-to-billing formula engine · statutory cost build-up (PF/ESIC/bonus/gratuity) simplified for demo.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="crm-campaigns" style="display:none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-sub mb-0">Bulk email / SMS / WhatsApp outreach to lead segments</div>
+            <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>New Campaign</button>
+          </div>
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Campaign</th><th>Channel</th><th>Target Segment</th><th>Leads Reached</th><th>Conversion</th><th>Status</th></tr></thead>
+                <tbody id="campaignsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= MANPOWER ================= -->
+      <div class="view" id="view-manpower">
+        <div class="section-title">Demand vs Supply</div>
+        <div class="section-sub mb-3">Required Manpower − Available Manpower = Manpower Gap</div>
+
+        <div class="card-panel p-0 mb-3">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Site / Work Area</th><th>Client</th><th>Required</th><th>Deployed</th><th>Gap</th><th>Fulfilment</th><th>Priority</th></tr></thead>
+              <tbody id="manpowerTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">Workforce Cost Forecast</div>
+              <canvas id="chartCostForecast" height="150"></canvas>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">Vacancy → Hiring Flow</div>
+              <div class="d-flex overflow-auto">
+                <div class="flow-step done"><div class="flow-line"></div><div class="fs-num">1</div><div class="fs-label">Requirement</div><div class="fs-sub">Raised</div></div>
+                <div class="flow-step done"><div class="flow-line"></div><div class="fs-num">2</div><div class="fs-label">Vacancy</div><div class="fs-sub">Approved</div></div>
+                <div class="flow-step done"><div class="flow-line"></div><div class="fs-num">3</div><div class="fs-label">Job Posted</div><div class="fs-sub">4 channels</div></div>
+                <div class="flow-step done"><div class="flow-line"></div><div class="fs-num">4</div><div class="fs-label">Screening</div><div class="fs-sub">86 applied</div></div>
+                <div class="flow-step"><div class="flow-line"></div><div class="fs-num">5</div><div class="fs-label">Offer</div><div class="fs-sub">27 sent</div></div>
+                <div class="flow-step"><div class="flow-line"></div><div class="fs-num">6</div><div class="fs-label">Onboarding</div><div class="fs-sub">Pending</div></div>
+                <div class="flow-step"><div class="flow-line"></div><div class="fs-num">7</div><div class="fs-label">Deployed</div><div class="fs-sub">—</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VENDORS ================= -->
+      <div class="view" id="view-vendors">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="section-title">Vendor Master</div>
+            <div class="section-sub">Standard workforce relationship master — client and vendor share one master</div>
+          </div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Add Vendor</button>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Vendor</th><th>Contact</th><th>Employees Supplied</th><th>Sites</th><th>Payroll Mode</th><th>Agreement</th><th>Status</th></tr></thead>
+              <tbody id="vendorsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SITES / WORK AREAS ================= -->
+      <div class="view" id="view-sites">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="section-title">Sites / Work Areas</div>
+            <div class="section-sub">Warehouse, factory, store, project or field location — generalized as a Site</div>
+          </div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Add Site</button>
+        </div>
+        <div class="row g-3" id="sitesRow"></div>
+      </div>
+
+      <!-- ================= RECRUITMENT ================= -->
+      <div class="view" id="view-recruitment">
+        <div class="tab-strip">
+          <div class="tabit active" data-rectab="postings">Job Postings</div>
+          <div class="tabit" data-rectab="candidates">Candidate Database</div>
+          <div class="tabit" data-rectab="camps">Recruitment Camps</div>
+          <div class="tabit" data-rectab="analytics">Analytics</div>
+        </div>
+
+        <div id="rec-postings">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-sub mb-0">Own Job Portal is the master record · distributed across 4 external channels</div>
+            <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Post New Job</button>
+          </div>
+          <div class="row g-3" id="jobCardsRow"></div>
+        </div>
+
+        <div id="rec-candidates" style="display:none;">
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Candidate</th><th>Applied For</th><th>Source</th><th>Site</th><th>Stage</th><th>Score</th></tr></thead>
+                <tbody id="candidatesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="rec-camps" style="display:none;">
+          <div class="row g-3" id="campsRow"></div>
+        </div>
+
+        <div id="rec-analytics" style="display:none;">
+          <div class="row g-3">
+            <div class="col-lg-6"><div class="card-panel"><div class="section-title mb-3">Source-wise Conversion</div><canvas id="chartSourceConv" height="180"></canvas></div></div>
+            <div class="col-lg-6"><div class="card-panel"><div class="section-title mb-3">Cost per Joining by Channel</div><canvas id="chartCostChannel" height="180"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= EMPLOYEES ================= -->
+      <div class="view" id="view-employees">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="chip-filter active" data-empfilter="All">All Employees</span>
+            <span class="chip-filter" data-empfilter="Active">Active</span>
+            <span class="chip-filter" data-empfilter="KYC Pending">KYC Pending</span>
+            <span class="chip-filter" data-empfilter="Exit">Exit / F&amp;F</span>
+          </div>
+          <button class="btn btn-amber"><i class="fa-solid fa-upload me-1"></i>Bulk Onboard</button>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Employee</th><th>Department</th><th>Vendor</th><th>Site</th><th>Type</th><th>KYC / BGV</th><th>Status</th><th></th></tr></thead>
+              <tbody id="employeesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= ATTENDANCE ================= -->
+      <div class="view" id="view-attendance">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Present Today</span><div class="metric-value" style="color:var(--teal-500);">1,942</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Absent</span><div class="metric-value" style="color:var(--red-500);">96</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">On Leave</span><div class="metric-value" style="color:var(--amber-600);">64</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Regularization Pending</span><div class="metric-value">17</div></div></div>
+        </div>
+
+        <div class="tab-strip">
+          <div class="tabit active" data-atttab="feed">Live Punch Feed</div>
+          <div class="tabit" data-atttab="shift">Shift Roster</div>
+          <div class="tabit" data-atttab="reg">Regularization Requests</div>
+        </div>
+
+        <div id="att-feed">
+          <div class="card-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="section-title mb-0">Live Site Punch Feed — Today</div>
+              <span class="cell-sub">Biometric · Mobile GPS · Face verification</span>
+            </div>
+            <div class="punch-grid" id="punchGrid"></div>
+          </div>
+        </div>
+
+        <div id="att-shift" style="display:none;">
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Employee</th><th>Site</th><th>Shift</th><th>Timing</th><th>Weekly Off</th><th>Status</th></tr></thead>
+                <tbody id="shiftTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="att-reg" style="display:none;">
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Employee</th><th>Date</th><th>Reason</th><th>Requested</th><th>Status</th><th></th></tr></thead>
+                <tbody id="regTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= LEAVE & HOLIDAYS ================= -->
+      <div class="view" id="view-leave">
+        <div class="tab-strip">
+          <div class="tabit active" data-leavetab="requests">Leave Requests</div>
+          <div class="tabit" data-leavetab="calendar">Holiday Calendar</div>
+        </div>
+        <div id="leave-requests">
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Employee</th><th>Leave Type</th><th>Dates</th><th>Days</th><th>Applied On</th><th>Status</th><th></th></tr></thead>
+                <tbody id="leaveTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="leave-calendar" style="display:none;">
+          <div class="row g-3" id="holidayRow"></div>
+        </div>
+      </div>
+
+      <!-- ================= ASSET MANAGEMENT ================= -->
+      <div class="view" id="view-assets">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Total Assets</span><div class="metric-value">3,420</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Assigned</span><div class="metric-value" style="color:var(--teal-500);">3,180</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Under Repair</span><div class="metric-value" style="color:var(--amber-600);">28</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Lost / Damaged</span><div class="metric-value" style="color:var(--red-500);">12</div></div></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title mb-0">Asset Register</div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Add Asset</button>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Asset ID</th><th>Type</th><th>Assigned To</th><th>Site</th><th>Issued On</th><th>Condition</th><th>Status</th></tr></thead>
+              <tbody id="assetsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= HR LETTERS & DIGITAL ID ================= -->
+      <div class="view" id="view-hrdocs">
+        <div class="tab-strip">
+          <div class="tabit active" data-hrtab="letters">HR Letters</div>
+          <div class="tabit" data-hrtab="digitalid">Digital ID Cards</div>
+        </div>
+        <div id="hr-letters">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-sub mb-0">Auto-filled, branded, eSign-ready templates</div>
+            <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Generate Letter</button>
+          </div>
+          <div class="card-panel p-0">
+            <div class="table-responsive">
+              <table class="table-modern">
+                <thead><tr><th>Employee</th><th>Letter Type</th><th>Generated On</th><th>Status</th><th></th></tr></thead>
+                <tbody id="lettersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="hr-digitalid" style="display:none;">
+          <div class="row g-3" id="digitalIdRow"></div>
+        </div>
+      </div>
+
+      <!-- ================= HELPDESK QUEUE (ADMIN) ================= -->
+      <div class="view" id="view-helpdesk-admin">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="chip-filter active" data-hdfilter="All">All Tickets</span>
+            <span class="chip-filter" data-hdfilter="Open">Open</span>
+            <span class="chip-filter" data-hdfilter="In Progress">In Progress</span>
+            <span class="chip-filter" data-hdfilter="Resolved">Resolved</span>
+          </div>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Ticket</th><th>Employee</th><th>Category</th><th>Raised On</th><th>Assigned To</th><th>Status</th></tr></thead>
+              <tbody id="helpdeskAdminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= REPORTS & ANALYTICS ================= -->
+      <div class="view" id="view-reports">
+        <div class="section-title mb-1">Reports & Analytics</div>
+        <div class="section-sub mb-3">Every module rolls up into exportable reports</div>
+        <div class="row g-3" id="reportsRow"></div>
+      </div>
+
+      <!-- ================= IMPORT / EXPORT CENTRE ================= -->
+      <div class="view" id="view-importexport">
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">Import Centre</div>
+              <div class="section-sub mb-3">Excel · CSV · API</div>
+              <div id="importList"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">Export Centre</div>
+              <div class="section-sub mb-3">Excel · CSV · PDF · Bank files · Compliance files</div>
+              <div id="exportList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAYROLL ================= -->
+      <div class="view" id="view-payroll">
+        <div class="row g-3 mb-3">
+          <div class="col-lg-8">
+            <div class="card-panel p-0">
+              <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+                <div class="section-title mb-0">Payroll Runs — August 2026</div>
+                <span class="badge-status st-review">2 vendor imports pending review</span>
+              </div>
+              <div class="table-responsive mt-2">
+                <table class="table-modern">
+                  <thead><tr><th>Vendor / Source</th><th>Employees</th><th>Mode</th><th>Gross</th><th>Net Payable</th><th>Status</th><th></th></tr></thead>
+                  <tbody id="payrollTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card-panel">
+              <div class="section-title mb-3">Payslip Preview</div>
+              <div class="payslip-box">
+                <div style="font-size:11.5px;color:#9FABC7;font-weight:700;">RAVI KUMAR S · EMP-10432 · Site: Whitefield Hub</div>
+                <div class="d-flex justify-content-between mt-3" style="font-size:12.5px;color:#C7CFE4;"><span>Gross Earnings</span><span>₹28,400</span></div>
+                <div class="d-flex justify-content-between mt-1" style="font-size:12.5px;color:#C7CFE4;"><span>PF + ESIC + PT</span><span>− ₹3,120</span></div>
+                <div class="d-flex justify-content-between mt-1" style="font-size:12.5px;color:#C7CFE4;"><span>TDS</span><span>− ₹0</span></div>
+                <hr style="border-color:rgba(255,255,255,.1);">
+                <div class="d-flex justify-content-between align-items-center"><span style="font-size:12.5px;color:#C7CFE4;">Net Pay</span><span class="ps-net">₹25,280</span></div>
+              </div>
+              <button class="btn btn-outline-soft w-100 mt-3"><i class="fa-regular fa-file-pdf me-1"></i>Download sample PDF layout</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="section-title mb-3">Flexible Payout Engine — separate from salary</div>
+          <div class="row g-3">
+            <div class="col-md-3 col-6"><div class="card-panel"><div class="metric-label">Weekly Payouts</div><div class="metric-value" style="font-size:19px;">₹18.2L</div></div></div>
+            <div class="col-md-3 col-6"><div class="card-panel"><div class="metric-label">Fuel Payouts</div><div class="metric-value" style="font-size:19px;">₹6.4L</div></div></div>
+            <div class="col-md-3 col-6"><div class="card-panel"><div class="metric-label">Incentives</div><div class="metric-value" style="font-size:19px;">₹9.1L</div></div></div>
+            <div class="col-md-3 col-6"><div class="card-panel"><div class="metric-label">Reimbursements</div><div class="metric-value" style="font-size:19px;">₹3.8L</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= COMPLIANCE ================= -->
+      <div class="view" id="view-compliance">
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card-panel h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2"><div class="section-title mb-0">PF (EPF)</div><span class="badge-status st-active">Filed</span></div>
+              <ul class="info-list">
+                <li><span class="il-label">ECR — Aug 2026</span><span class="il-value">Uploaded</span></li>
+                <li><span class="il-label">UAN linked</span><span class="il-value">2,151 / 2,184</span></li>
+                <li><span class="il-label">Challan payment</span><span class="il-value" style="color:var(--teal-500);">Paid</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-panel h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2"><div class="section-title mb-0">ESIC</div><span class="badge-status st-active">Filed</span></div>
+              <ul class="info-list">
+                <li><span class="il-label">Eligible employees</span><span class="il-value">1,340</span></li>
+                <li><span class="il-label">IP numbers pending</span><span class="il-value">22</span></li>
+                <li><span class="il-label">Monthly contribution</span><span class="il-value">₹4.1L</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card-panel h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2"><div class="section-title mb-0">TDS on Salary</div><span class="badge-status st-pending">Due in 4 days</span></div>
+              <ul class="info-list">
+                <li><span class="il-label">Challan ITNS 281</span><span class="il-value">₹6.8L</span></li>
+                <li><span class="il-label">Regime split</span><span class="il-value">New: 61% · Old: 39%</span></li>
+                <li><span class="il-label">Form 16 (annual)</span><span class="il-value">Scheduled Q4</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel p-0">
+          <div class="p-3 pb-0"><div class="section-title">State-Wise Labour Law Registers</div><div class="section-sub">Company → State → Establishment/Site → Compliance Period</div></div>
+          <div class="table-responsive mt-2">
+            <table class="table-modern">
+              <thead><tr><th>State</th><th>Register / Form</th><th>Establishment</th><th>Period</th><th>Status</th></tr></thead>
+              <tbody id="complianceTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= BILLING ================= -->
+      <div class="view" id="view-billing">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="chip-filter active" data-billfilter="All">All Invoices</span>
+            <span class="chip-filter" data-billfilter="Paid">Paid</span>
+            <span class="chip-filter" data-billfilter="Pending">Pending</span>
+            <span class="chip-filter" data-billfilter="Overdue">Overdue</span>
+          </div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Generate Invoice</button>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Invoice #</th><th>Client</th><th>State / GSTIN</th><th>Billing Source</th><th>Taxable Value</th><th>GST</th><th>Total</th><th>Status</th></tr></thead>
+              <tbody id="billingTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= FINANCE ================= -->
+      <div class="view" id="view-finance">
+        <div class="row g-3 mb-3">
+          <div class="col-lg-4"><div class="card-panel"><div class="section-title mb-3">Revenue vs Workforce Cost</div><canvas id="chartRevCost" height="160"></canvas></div></div>
+          <div class="col-lg-4"><div class="card-panel"><div class="section-title mb-3">Client Profitability</div><canvas id="chartClientProfit" height="160"></canvas></div></div>
+          <div class="col-lg-4"><div class="card-panel"><div class="section-title mb-3">Expense Breakdown</div><canvas id="chartExpense" height="160"></canvas></div></div>
+        </div>
+        <div class="card-panel p-0">
+          <div class="p-3 pb-0"><div class="section-title">Expense Approval Queue</div></div>
+          <div class="table-responsive mt-2">
+            <table class="table-modern">
+              <thead><tr><th>Category</th><th>Raised By</th><th>Site</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody id="expenseTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= INTEGRATIONS ================= -->
+      <div class="view" id="view-integrations">
+        <div class="section-title mb-3">Company-Owned API &amp; Integration Framework</div>
+        <div class="row g-3" id="integrationsRow"></div>
+      </div>
+
+      <!-- ================= WHITE-LABEL: PLATFORM OVERVIEW ================= -->
+      <div class="view" id="view-platform-overview">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Companies Onboarded</span><div class="metric-value">37</div><div class="metric-delta delta-up"><i class="fa-solid fa-arrow-up"></i> 3 this month</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Total Employees (all tenants)</span><div class="metric-value">48,920</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Platform MRR</span><div class="metric-value">₹41.2L</div></div></div>
+          <div class="col-6 col-lg-3"><div class="metric-card"><span class="metric-label">Support Tickets Open</span><div class="metric-value" style="color:var(--amber-600);">12</div></div></div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title mb-0">Companies on this Platform</div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>Onboard New Company</button>
+        </div>
+        <div class="card-panel p-0">
+          <div class="table-responsive">
+            <table class="table-modern">
+              <thead><tr><th>Company</th><th>Plan</th><th>Employees</th><th>Admin Login</th><th>Status</th></tr></thead>
+              <tbody id="companiesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= WHITE-LABEL: SUBSCRIPTION PLANS ================= -->
+      <div class="view" id="view-platform-plans">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="section-title mb-0">Subscription Plan Categories</div>
+            <div class="section-sub">Unlimited plan categories — not locked to Basic / Standard / Premium</div>
+          </div>
+          <button class="btn btn-amber"><i class="fa-solid fa-plus me-1"></i>New Plan Category</button>
+        </div>
+        <div class="row g-3" id="plansRow"></div>
+      </div>
+
+      <!-- ================= WHITE-LABEL: PLATFORM SETTINGS ================= -->
+      <div class="view" id="view-platform-settings">
+        <div class="section-title mb-3">Platform Settings &amp; Branding</div>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">White-Label Branding (default, per-company overridable)</div>
+              <ul class="info-list">
+                <li><span class="il-label">Platform name</span><span class="il-value">Quantum HRMS</span></li>
+                <li><span class="il-label">Primary accent</span><span class="il-value">#FF8A3D</span></li>
+                <li><span class="il-label">Support email</span><span class="il-value">support@quantumbusiness.in</span></li>
+                <li><span class="il-label">Custom domains enabled</span><span class="il-value" style="color:var(--teal-500);">Yes</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="section-title mb-3">Global Security &amp; Audit</div>
+              <ul class="info-list">
+                <li><span class="il-label">Tenant data isolation</span><span class="il-value" style="color:var(--teal-500);">Enforced</span></li>
+                <li><span class="il-label">Credential encryption</span><span class="il-value" style="color:var(--teal-500);">AES-256</span></li>
+                <li><span class="il-label">Platform audit log entries (30d)</span><span class="il-value">14,208</span></li>
+                <li><span class="il-label">Last security review</span><span class="il-value">12 Aug 2026</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= EMPLOYEE: MY WORKSPACE ================= -->
+      <div class="view" id="view-self-workspace">
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="card-panel text-center">
+              <div class="avatar-sm mx-auto mb-2" style="width:56px;height:56px;font-size:19px;">AS</div>
+              <div class="fw-bold" style="font-size:15px;">Arun Selvam</div>
+              <div class="cell-sub mb-2">Warehouse Picker · EMP-10221</div>
+              <span class="badge-status st-active">Active</span>
+              <ul class="info-list text-start mt-3">
+                <li><span class="il-label">Site</span><span class="il-value">Whitefield Fulfilment Hub</span></li>
+                <li><span class="il-label">Vendor</span><span class="il-value">Direct</span></li>
+                <li><span class="il-label">Reporting to</span><span class="il-value">Kavitha Ramesh</span></li>
+                <li><span class="il-label">KYC status</span><span class="il-value" style="color:var(--teal-500);">Verified</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card-panel mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="section-title mb-0">My Attendance — August 2026</div>
+                <button class="btn btn-outline-soft" style="padding:6px 12px;font-size:12px;">Apply Regularization</button>
+              </div>
+              <div class="punch-grid" id="myAttendanceGrid"></div>
+            </div>
+            <div class="card-panel">
+              <div class="section-title mb-3">My Payslip — August 2026</div>
+              <div class="payslip-box">
+                <div style="font-size:11.5px;color:#9FABC7;font-weight:700;">ARUN SELVAM · EMP-10221 · Whitefield Fulfilment Hub</div>
+                <div class="d-flex justify-content-between mt-3" style="font-size:12.5px;color:#C7CFE4;"><span>Gross Earnings</span><span>₹18,500</span></div>
+                <div class="d-flex justify-content-between mt-1" style="font-size:12.5px;color:#C7CFE4;"><span>PF + ESIC + PT</span><span>− ₹2,040</span></div>
+                <hr style="border-color:rgba(255,255,255,.1);">
+                <div class="d-flex justify-content-between align-items-center"><span style="font-size:12.5px;color:#C7CFE4;">Net Pay</span><span class="ps-net">₹16,460</span></div>
+              </div>
+              <button class="btn btn-outline-soft w-100 mt-3"><i class="fa-regular fa-file-pdf me-1"></i>Download Payslip</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= EMPLOYEE: LEAVE & HELPDESK ================= -->
+      <div class="view" id="view-self-helpdesk">
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card-panel mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">Leave Balance</div>
+                <button class="btn btn-amber" style="padding:7px 14px;font-size:12.5px;">Apply Leave</button>
+              </div>
+              <ul class="info-list">
+                <li><span class="il-label">Casual Leave</span><span class="il-value">4 of 12 used</span></li>
+                <li><span class="il-label">Sick Leave</span><span class="il-value">1 of 6 used</span></li>
+                <li><span class="il-label">Earned Leave</span><span class="il-value">2 of 15 used</span></li>
+              </ul>
+            </div>
+            <div class="card-panel">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">My Claims & Advances</div>
+                <button class="btn btn-outline-soft" style="padding:7px 14px;font-size:12.5px;">Raise Claim</button>
+              </div>
+              <ul class="info-list">
+                <li><span class="il-label">Fuel Claim — Aug 2026</span><span class="il-value badge-status st-review">Pending</span></li>
+                <li><span class="il-label">Salary Advance — ₹5,000</span><span class="il-value badge-status st-active">Approved</span></li>
+                <li><span class="il-label">Medical Claim — ₹1,200</span><span class="il-value badge-status st-active">Reimbursed</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card-panel">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0">My Helpdesk Tickets</div>
+                <button class="btn btn-outline-soft" style="padding:7px 14px;font-size:12.5px;">Raise Ticket</button>
+              </div>
+              <ul class="info-list">
+                <li><span class="il-label">#HD-2291 — Salary query</span><span class="il-value badge-status st-review">In Progress</span></li>
+                <li><span class="il-label">#HD-2204 — ID card reissue</span><span class="il-value badge-status st-active">Resolved</span></li>
+                <li><span class="il-label">#HD-2166 — Bank detail update</span><span class="il-value badge-status st-active">Resolved</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add Lead Modal -->
+<div class="modal fade" id="modalAddLead" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-4">
+        <h5 class="fw-bold mb-3">New Lead</h5>
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label">Company Name</label><input class="form-control" id="nlCompany" placeholder="e.g. Blue Harbor Logistics"></div>
+          <div class="col-6"><label class="form-label">Contact Person</label><input class="form-control" id="nlContact" placeholder="Full name"></div>
+          <div class="col-6"><label class="form-label">Est. Headcount</label><input type="number" class="form-control" id="nlHeadcount" placeholder="e.g. 80"></div>
+          <div class="col-6"><label class="form-label">Est. Value (₹)</label><input type="number" class="form-control" id="nlValue" placeholder="e.g. 1800000"></div>
+          <div class="col-6"><label class="form-label">Grade</label>
+            <select class="form-select" id="nlGrade"><option>Hot</option><option selected>Warm</option><option>Cold</option></select>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+          <button class="btn btn-outline-soft flex-fill" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-amber flex-fill" onclick="addLead()">Add Lead</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Detail Modal -->
+<div class="modal fade" id="modalEmpDetail" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-4" id="empDetailBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ============ Chart.js defaults for premium feel ============ */
+Chart.defaults.font.family = "'Inter',sans-serif";
+Chart.defaults.color = '#8891A8';
+Chart.defaults.font.size = 11.5;
+
+const COLORS = { amber:'#FF8A3D', navy:'#171F33', teal:'#17A589', blue:'#3D6BFF', red:'#E5484D', grid:'#EEF0F6' };
+
+/* ============ ROLES & LOGIN ============ */
+const ROLE_CONFIG = {
+  whitelabel:{
+    name:'Nishaanth R', role:'White-Label Admin', initials:'NR', tenant:'Platform Owner',
+    nav:[
+      {group:'PLATFORM', items:[
+        {view:'platform-overview', icon:'fa-solid fa-chart-simple', label:'Platform Overview'},
+        {view:'platform-plans', icon:'fa-solid fa-layer-group', label:'Subscription Plans'},
+        {view:'platform-settings', icon:'fa-solid fa-gear', label:'Settings & Security'},
+      ]}
+    ],
+    default:'platform-overview'
+  },
+  company:{
+    name:'Nishaanth R', role:'Company Admin', initials:'NR', tenant:'SUMMIT LOGISTICS GROUP',
+    nav:[
+      {group:'OVERVIEW', items:[{view:'dashboard', icon:'fa-solid fa-chart-simple', label:'Dashboard'}]},
+      {group:'GROWTH', items:[
+        {view:'crm', icon:'fa-solid fa-bullseye', label:'CRM & Leads', badge:18},
+        {view:'manpower', icon:'fa-solid fa-diagram-project', label:'Manpower Planning'},
+        {view:'recruitment', icon:'fa-solid fa-user-plus', label:'Recruitment', badge:34},
+      ]},
+      {group:'ORGANIZATION', items:[
+        {view:'vendors', icon:'fa-solid fa-handshake', label:'Vendors'},
+        {view:'sites', icon:'fa-solid fa-warehouse', label:'Sites / Work Areas'},
+      ]},
+      {group:'WORKFORCE', items:[
+        {view:'employees', icon:'fa-solid fa-users', label:'Employees'},
+        {view:'attendance', icon:'fa-solid fa-fingerprint', label:'Attendance & Shift'},
+        {view:'leave', icon:'fa-solid fa-calendar-days', label:'Leave & Holidays'},
+        {view:'assets', icon:'fa-solid fa-boxes-stacked', label:'Asset Management'},
+      ]},
+      {group:'MONEY', items:[
+        {view:'payroll', icon:'fa-solid fa-money-check-dollar', label:'Payroll & Payouts'},
+        {view:'compliance', icon:'fa-solid fa-shield-halved', label:'Compliance'},
+        {view:'billing', icon:'fa-solid fa-file-invoice-dollar', label:'GST Billing'},
+        {view:'finance', icon:'fa-solid fa-chart-pie', label:'Finance'},
+      ]},
+      {group:'DOCUMENTS & SUPPORT', items:[
+        {view:'hrdocs', icon:'fa-solid fa-id-card-clip', label:'HR Letters & Digital ID'},
+        {view:'helpdesk-admin', icon:'fa-solid fa-headset', label:'Helpdesk Queue'},
+      ]},
+      {group:'PLATFORM', items:[
+        {view:'reports', icon:'fa-solid fa-file-lines', label:'Reports & Analytics'},
+        {view:'importexport', icon:'fa-solid fa-file-import', label:'Import / Export Centre'},
+        {view:'integrations', icon:'fa-solid fa-plug', label:'API & Integrations'},
+      ]},
+    ],
+    default:'dashboard'
+  },
+  employee:{
+    name:'Arun Selvam', role:'Employee', initials:'AS', tenant:'SUMMIT LOGISTICS GROUP',
+    nav:[
+      {group:'MY WORKSPACE', items:[
+        {view:'self-workspace', icon:'fa-solid fa-id-badge', label:'My Profile & Attendance'},
+        {view:'self-helpdesk', icon:'fa-solid fa-headset', label:'Leave & Helpdesk'},
+      ]}
+    ],
+    default:'self-workspace'
+  }
+};
+const titles = {
+  dashboard:['Dashboard','Overview'], crm:['CRM & Leads','Growth'], manpower:['Manpower Planning','Growth'],
+  recruitment:['Recruitment','Growth'], vendors:['Vendors','Organization'], sites:['Sites / Work Areas','Organization'],
+  employees:['Employees','Workforce'], attendance:['Attendance & Shift','Workforce'], leave:['Leave & Holidays','Workforce'],
+  assets:['Asset Management','Workforce'],
+  payroll:['Payroll & Payouts','Money'], compliance:['Compliance','Money'], billing:['GST Billing','Money'],
+  finance:['Finance','Money'], hrdocs:['HR Letters & Digital ID','Documents & Support'], 'helpdesk-admin':['Helpdesk Queue','Documents & Support'],
+  reports:['Reports & Analytics','Platform'], importexport:['Import / Export Centre','Platform'], integrations:['API & Integrations','Platform'],
+  'platform-overview':['Platform Overview','White-Label Admin'], 'platform-plans':['Subscription Plans','White-Label Admin'],
+  'platform-settings':['Settings & Security','White-Label Admin'],
+  'self-workspace':['My Profile & Attendance','Employee Self-Service'], 'self-helpdesk':['Leave, Claims & Helpdesk','Employee Self-Service'],
+};
+let currentRole = null;
+let selectedRole = null;
+
+document.querySelectorAll('.role-card').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.role-card').forEach(x=>x.classList.remove('selected'));
+  c.classList.add('selected');
+  selectedRole = c.dataset.role;
+  document.getElementById('btnLogin').disabled = false;
+}));
+function doLogin(){
+  if(!selectedRole) return;
+  currentRole = selectedRole;
+  const cfg = ROLE_CONFIG[currentRole];
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  document.getElementById('sbName').textContent = cfg.name;
+  document.getElementById('sbRole').textContent = cfg.role;
+  document.getElementById('sbAvatar').textContent = cfg.initials;
+  document.querySelector('.brand-sub').textContent = cfg.tenant;
+  renderNav();
+  goTo(cfg.default);
+  populateRoleData();
+}
+function logout(){
+  currentRole = null; selectedRole = null;
+  document.getElementById('btnLogin').disabled = true;
+  document.querySelectorAll('.role-card').forEach(x=>x.classList.remove('selected'));
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+/* ============ NAVIGATION ============ */
+const views = document.querySelectorAll('.view');
+const pageTitle = document.getElementById('pageTitle');
+const pageCrumb = document.getElementById('pageCrumb');
+
+function renderNav(){
+  const cfg = ROLE_CONFIG[currentRole];
+  document.getElementById('navScroll').innerHTML = cfg.nav.map(g=>`
+    <div class="nav-group-label">${g.group}</div>
+    ${g.items.map(it=>`<div class="nav-item" data-view="${it.view}"><i class="${it.icon}"></i>${it.label}${it.badge?`<span class="badge-pill">${it.badge}</span>`:''}</div>`).join('')}
+  `).join('');
+  document.querySelectorAll('.nav-item[data-view]').forEach(n=>n.addEventListener('click',()=>goTo(n.dataset.view)));
+}
+
+function goTo(view){
+  views.forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-item[data-view]').forEach(n=>n.classList.remove('active'));
+  const activeNav = document.querySelector(`.nav-item[data-view="${view}"]`);
+  if(activeNav) activeNav.classList.add('active');
+  pageTitle.textContent = titles[view][0];
+  pageCrumb.textContent = titles[view][1];
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(renderCharts,50);
+}
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>goTo(b.dataset.goto)));
+document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+
+/* ============ STATIC DATA ============ */
+const leads = [
+  {company:'Skyline Retail Pvt Ltd', contact:'Anjali Mehta', req:'Staffing — 3PL Warehouse', headcount:120, value:1860000, grade:'Hot', owner:'Rahul V', stage:'Negotiation'},
+  {company:'Everest Cold Chain', contact:'Suresh Iyer', req:'Payroll Outsourcing', headcount:60, value:740000, grade:'Warm', owner:'Priya S', stage:'Proposal Sent'},
+  {company:'Nova Manufacturing', contact:'Divya Rao', req:'Staffing — Factory Floor', headcount:210, value:3120000, grade:'Hot', owner:'Rahul V', stage:'Qualified'},
+  {company:'Bluewave Logistics', contact:'Kabir Shah', req:'Compliance Services', headcount:0, value:280000, grade:'Cold', owner:'Meera N', stage:'Contacted'},
+  {company:'Orbit E-commerce', contact:'Tanvi Kapoor', req:'Staffing — Fulfilment Hub', headcount:340, value:5100000, grade:'Hot', owner:'Priya S', stage:'Won'},
+  {company:'Falcon Freight', contact:'Arjun Nair', req:'Staffing — Drivers', headcount:75, value:980000, grade:'Warm', owner:'Rahul V', stage:'New'},
+  {company:'Zenith Foods', contact:'Kavya R', req:'Software Subscription', headcount:0, value:180000, grade:'Cold', owner:'Meera N', stage:'Dormant'},
+  {company:'Harbor Point Retail', contact:'Vikram Das', req:'Staffing — Store Ops', headcount:95, value:1420000, grade:'Warm', owner:'Priya S', stage:'Proposal Sent'},
+];
+const stages = ['New','Contacted','Qualified','Proposal Sent','Negotiation','Won'];
+function gradeClass(g){return g==='Hot'?'st-hot':g==='Warm'?'st-warm':g==='Cold'?'st-cold':'st-won';}
+function inr(n){return '₹'+Number(n).toLocaleString('en-IN');}
+
+function renderKanban(){
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = stages.map(st=>{
+    const items = leads.filter(l=>l.stage===st);
+    return `<div class="kanban-col">
+      <div class="kanban-head"><span>${st}</span><span class="cell-sub">${items.length}</span></div>
+      ${items.map(l=>`<div class="kanban-card"><div class="kc-title">${l.company}</div><div class="kc-meta">${l.req}</div><div class="kc-value">${inr(l.value)}</div></div>`).join('')}
+    </div>`;
+  }).join('');
+}
+function renderLeadsTable(filter='All'){
+  const body = document.getElementById('leadsTableBody');
+  const rows = leads.filter(l=> filter==='All' ? true : filter==='Won' ? l.stage==='Won' : l.grade===filter);
+  body.innerHTML = rows.map(l=>`
+    <tr>
+      <td class="cell-strong">${l.company}</td>
+      <td>${l.contact}</td>
+      <td>${l.req}</td>
+      <td>${l.headcount||'—'}</td>
+      <td class="cell-strong">${inr(l.value)}</td>
+      <td><span class="badge-status ${gradeClass(l.grade)}">${l.grade}</span></td>
+      <td>${l.owner}</td>
+      <td><span class="badge-status st-new">${l.stage}</span></td>
+    </tr>`).join('');
+}
+document.querySelectorAll('[data-leadfilter]').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('[data-leadfilter]').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); renderLeadsTable(c.dataset.leadfilter);
+}));
+function addLead(){
+  const company = document.getElementById('nlCompany').value || 'Untitled Prospect';
+  const contact = document.getElementById('nlContact').value || '—';
+  const headcount = Number(document.getElementById('nlHeadcount').value)||0;
+  const value = Number(document.getElementById('nlValue').value)||0;
+  const grade = document.getElementById('nlGrade').value;
+  leads.unshift({company,contact,req:'New Requirement',headcount,value,grade,owner:'You',stage:'New'});
+  renderKanban(); renderLeadsTable();
+  bootstrap.Modal.getInstance(document.getElementById('modalAddLead')).hide();
+  document.getElementById('nlCompany').value=''; document.getElementById('nlContact').value='';
+  document.getElementById('nlHeadcount').value=''; document.getElementById('nlValue').value='';
+}
+function calcProposal(){
+  const hc = Number(document.getElementById('pcHeadcount').value)||0;
+  const ctc = Number(document.getElementById('pcCtc').value)||0;
+  const markup = Number(document.getElementById('pcMarkup').value)||0;
+  const gst = Number(document.getElementById('pcGst').value)||0;
+  const base = hc*ctc;
+  const markupAmt = base*(markup/100);
+  const sub = base+markupAmt;
+  const gstAmt = sub*(gst/100);
+  const total = sub+gstAmt;
+  document.getElementById('pOutBase').textContent = inr(base);
+  document.getElementById('pOutMarkup').textContent = inr(Math.round(markupAmt));
+  document.getElementById('pOutSub').textContent = inr(Math.round(sub));
+  document.getElementById('pOutGst').textContent = inr(Math.round(gstAmt));
+  document.getElementById('pOutTotal').textContent = inr(Math.round(total));
+}
+document.querySelectorAll('[data-crmtab]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-crmtab]').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  ['pipeline','leads','proposals','campaigns'].forEach(id=>document.getElementById('crm-'+id).style.display = (id===t.dataset.crmtab?'block':'none'));
+}));
+
+/* ===== Manpower ===== */
+const manpower = [
+  {site:'Whitefield Fulfilment Hub', client:'Orbit E-commerce', req:420, deployed:388, priority:'High'},
+  {site:'Bhiwandi Warehouse 3', client:'Everest Cold Chain', req:180, deployed:165, priority:'Medium'},
+  {site:'Chakan Factory Floor', client:'Nova Manufacturing', req:260, deployed:201, priority:'High'},
+  {site:'Okhla Distribution Centre', client:'Bluewave Logistics', req:95, deployed:95, priority:'Low'},
+  {site:'Hosur Store Cluster', client:'Harbor Point Retail', req:140, deployed:112, priority:'Medium'},
+  {site:'Panvel Cross-dock', client:'Falcon Freight', req:75, deployed:58, priority:'High'},
+];
+function renderManpower(){
+  document.getElementById('manpowerTableBody').innerHTML = manpower.map(m=>{
+    const gap = m.req-m.deployed;
+    const pct = Math.round((m.deployed/m.req)*100);
+    const barColor = pct>=95?COLORS.teal:pct>=80?COLORS.amber:COLORS.red;
+    return `<tr>
+      <td class="cell-strong">${m.site}</td><td>${m.client}</td><td>${m.req}</td><td>${m.deployed}</td>
+      <td style="color:${gap>0?'#E5484D':'#17A589'};font-weight:700;">${gap>0?gap:'0'}</td>
+      <td style="min-width:130px;">
+        <div class="progress-thin"><span style="width:${pct}%;background:${barColor};"></span></div>
+        <div class="cell-sub mt-1">${pct}%</div>
+      </td>
+      <td><span class="badge-status ${m.priority==='High'?'st-hot':m.priority==='Medium'?'st-warm':'st-new'}">${m.priority}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ===== Recruitment ===== */
+const jobs = [
+  {title:'Warehouse Picker', site:'Whitefield Fulfilment Hub', vac:40, applied:112, channels:['Own Portal','Naukri','WorkIndia','QR Camp']},
+  {title:'Delivery Executive', site:'Panvel Cross-dock', vac:25, applied:64, channels:['Own Portal','Apna','WhatsApp']},
+  {title:'Machine Operator', site:'Chakan Factory Floor', vac:35, applied:58, channels:['Own Portal','Naukri','Referral']},
+  {title:'Store Associate', site:'Hosur Store Cluster', vac:18, applied:41, channels:['Own Portal','Job Hai']},
+];
+function renderJobs(){
+  document.getElementById('jobCardsRow').innerHTML = jobs.map(j=>`
+    <div class="col-md-6 col-lg-3">
+      <div class="card-panel h-100">
+        <div class="fw-bold mb-1">${j.title}</div>
+        <div class="cell-sub mb-2">${j.site}</div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:12.5px;">
+          <span class="text-muted">Vacancies</span><span class="fw-bold">${j.vac}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:12.5px;">
+          <span class="text-muted">Applications</span><span class="fw-bold">${j.applied}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-1 mt-2">
+          ${j.channels.map(c=>`<span class="badge-status st-new" style="font-size:10px;">${c}</span>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+const candidates = [
+  {name:'Arun Selvam', role:'Warehouse Picker', source:'Own Portal', site:'Whitefield Hub', stage:'Interview', score:82},
+  {name:'Neha Joshi', role:'Machine Operator', source:'Naukri', site:'Chakan', stage:'Screening', score:74},
+  {name:'Imran Sheikh', role:'Delivery Executive', source:'Apna', site:'Panvel', stage:'Offer', score:91},
+  {name:'Lakshmi Priya', role:'Store Associate', source:'Job Hai', site:'Hosur', stage:'Selected', score:88},
+  {name:'Rohit Bansal', role:'Warehouse Picker', source:'WorkIndia', site:'Whitefield Hub', stage:'Applied', score:58},
+  {name:'Farida Khatoon', role:'Machine Operator', source:'Referral', site:'Chakan', stage:'Interview', score:79},
+];
+function stageBadge(s){
+  const m = {Applied:'st-new',Screening:'st-review',Interview:'st-warm',Offer:'st-hot',Selected:'st-won'};
+  return m[s]||'st-new';
+}
+function renderCandidates(){
+  document.getElementById('candidatesTableBody').innerHTML = candidates.map(c=>`
+    <tr>
+      <td class="row-flex"><div class="avatar-sm">${c.name.split(' ').map(n=>n[0]).join('')}</div><span class="cell-strong">${c.name}</span></td>
+      <td>${c.role}</td><td>${c.source}</td><td>${c.site}</td>
+      <td><span class="badge-status ${stageBadge(c.stage)}">${c.stage}</span></td>
+      <td><div class="progress-thin" style="width:80px;"><span style="width:${c.score}%;background:${c.score>80?COLORS.teal:c.score>60?COLORS.amber:COLORS.red};"></span></div></td>
+    </tr>`).join('');
+}
+document.querySelectorAll('[data-rectab]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-rectab]').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  ['postings','candidates','camps','analytics'].forEach(id=>document.getElementById('rec-'+id).style.display = (id===t.dataset.rectab?'block':'none'));
+  setTimeout(renderCharts,50);
+}));
+
+/* ===== Employees ===== */
+const employees = [
+  {name:'Ravi Kumar S', dept:'Warehouse Ops', vendor:'Direct', site:'Whitefield Hub', type:'Permanent', kyc:'Verified', status:'Active'},
+  {name:'Sneha Pillai', dept:'Logistics', vendor:'Apex Manpower', site:'Bhiwandi WH-3', type:'Contract', kyc:'Verified', status:'Active'},
+  {name:'Mohammed Azhar', dept:'Production', vendor:'Direct', site:'Chakan Factory', type:'Permanent', kyc:'Pending', status:'KYC Pending'},
+  {name:'Kavitha Ramesh', dept:'Retail Ops', vendor:'StaffLine Vendors', site:'Hosur Cluster', type:'Contract', kyc:'Verified', status:'Active'},
+  {name:'Deepak Chauhan', dept:'Fleet', vendor:'Direct', site:'Panvel Cross-dock', type:'Contract', kyc:'Manual Review', status:'KYC Pending'},
+  {name:'Anitha George', dept:'HR / Admin', vendor:'Direct', site:'HQ — Bangalore', type:'Permanent', kyc:'Verified', status:'Active'},
+  {name:'Suraj Yadav', dept:'Warehouse Ops', vendor:'Apex Manpower', site:'Whitefield Hub', type:'Contract', kyc:'Verified', status:'Exit'},
+  {name:'Priyanka Das', dept:'Quality', vendor:'Direct', site:'Chakan Factory', type:'Permanent', kyc:'Verified', status:'Active'},
+];
+function kycColor(k){return k==='Verified'?'st-active':k==='Pending'?'st-pending':'st-review';}
+function empStatusBadge(s){return s==='Active'?'st-active':s==='KYC Pending'?'st-pending':'st-hot';}
+function renderEmployees(filter='All'){
+  const rows = employees.filter(e=> filter==='All'? true : filter==='Exit'? e.status==='Exit' : e.status===filter);
+  document.getElementById('employeesTableBody').innerHTML = rows.map((e,i)=>`
+    <tr>
+      <td class="row-flex"><div class="avatar-sm">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div><div class="cell-strong">${e.name}</div><div class="cell-sub">EMP-${10000+i}</div></div></td>
+      <td>${e.dept}</td><td>${e.vendor}</td><td>${e.site}</td><td>${e.type}</td>
+      <td><span class="badge-status ${kycColor(e.kyc)}">${e.kyc}</span></td>
+      <td><span class="badge-status ${empStatusBadge(e.status)}">${e.status}</span></td>
+      <td><button class="btn-ghost-sm" onclick='openEmp(${i})'><i class="fa-solid fa-ellipsis"></i></button></td>
+    </tr>`).join('');
+  window._empRows = rows;
+}
+function openEmp(i){
+  const e = window._empRows[i];
+  document.getElementById('empDetailBody').innerHTML = `
+    <div class="row-flex mb-3"><div class="avatar-sm" style="width:44px;height:44px;font-size:15px;">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+      <div><div class="fw-bold" style="font-size:16px;">${e.name}</div><div class="cell-sub">${e.dept} · ${e.site}</div></div></div>
+    <ul class="info-list">
+      <li><span class="il-label">Vendor</span><span class="il-value">${e.vendor}</span></li>
+      <li><span class="il-label">Employment Type</span><span class="il-value">${e.type}</span></li>
+      <li><span class="il-label">KYC / BGV</span><span class="il-value">${e.kyc}</span></li>
+      <li><span class="il-label">Status</span><span class="il-value">${e.status}</span></li>
+      <li><span class="il-label">UAN</span><span class="il-value">1023xxxx8842</span></li>
+      <li><span class="il-label">Bank Verification</span><span class="il-value" style="color:var(--teal-500);">Auto-verified</span></li>
+    </ul>`;
+  new bootstrap.Modal(document.getElementById('modalEmpDetail')).show();
+}
+document.querySelectorAll('[data-empfilter]').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('[data-empfilter]').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+  renderEmployees(c.dataset.empfilter);
+}));
+
+/* ===== Attendance ===== */
+const punches = [
+  {name:'Ravi Kumar S', site:'Whitefield Hub', time:'08:58 AM', mode:'Biometric', status:'In'},
+  {name:'Sneha Pillai', site:'Bhiwandi WH-3', time:'09:04 AM', mode:'Mobile GPS', status:'In'},
+  {name:'Mohammed Azhar', site:'Chakan Factory', time:'—', mode:'—', status:'Absent'},
+  {name:'Kavitha Ramesh', site:'Hosur Cluster', time:'09:11 AM', mode:'Face Verify', status:'In'},
+  {name:'Deepak Chauhan', site:'Panvel Cross-dock', time:'08:47 AM', mode:'Biometric', status:'In'},
+  {name:'Anitha George', site:'HQ Bangalore', time:'09:20 AM', mode:'Mobile GPS', status:'Late'},
+  {name:'Suraj Yadav', site:'Whitefield Hub', time:'—', mode:'—', status:'Absent'},
+  {name:'Priyanka Das', site:'Chakan Factory', time:'08:52 AM', mode:'Biometric', status:'In'},
+];
+function punchColor(s){return s==='In'?COLORS.teal:s==='Late'?COLORS.amber:COLORS.red;}
+function renderPunch(){
+  document.getElementById('punchGrid').innerHTML = punches.map(p=>`
+    <div class="punch-card ${p.status==='Absent'?'absent':''}">
+      <div class="fw-bold" style="font-size:12.5px;">${p.name}</div>
+      <div class="cell-sub">${p.site}</div>
+      <div class="mt-2" style="font-size:12px;"><span class="punch-status-dot" style="background:${punchColor(p.status)};"></span>${p.status} ${p.time!=='—'?'· '+p.time:''}</div>
+      <div class="cell-sub mt-1">${p.mode}</div>
+    </div>`).join('');
+}
+
+/* ===== Payroll ===== */
+const payrollRuns = [
+  {source:'Company Direct — HQ', emp:1240, mode:'Direct', gross:18600000, net:17420000, status:'Processed'},
+  {source:'Apex Manpower (Vendor Import)', emp:412, mode:'Vendor Import', gross:5120000, net:4830000, status:'Pending Review'},
+  {source:'StaffLine Vendors (Vendor Import)', emp:280, mode:'Vendor Import', gross:3340000, net:3110000, status:'Pending Review'},
+  {source:'Company Direct — Site Ops', emp:252, mode:'Direct', gross:3900000, net:3640000, status:'Processed'},
+];
+function payStatusBadge(s){return s==='Processed'?'st-paid':'st-review';}
+function renderPayroll(){
+  document.getElementById('payrollTableBody').innerHTML = payrollRuns.map(p=>`
+    <tr><td class="cell-strong">${p.source}</td><td>${p.emp}</td><td>${p.mode}</td>
+    <td>${inr(p.gross)}</td><td class="cell-strong">${inr(p.net)}</td>
+    <td><span class="badge-status ${payStatusBadge(p.status)}">${p.status}</span></td>
+    <td><button class="btn-ghost-sm"><i class="fa-solid fa-chevron-right"></i></button></td></tr>`).join('');
+}
+
+/* ===== Compliance registers ===== */
+const registers = [
+  {state:'Karnataka', form:'Form F — Register of Employment', est:'Whitefield Hub', period:'Aug 2026', status:'Filed'},
+  {state:'Maharashtra', form:'Muster Roll — Form XXIII', est:'Bhiwandi WH-3', period:'Aug 2026', status:'Filed'},
+  {state:'Tamil Nadu', form:'Form R — Muster-cum-Wage Register', est:'Hosur Cluster', period:'Aug 2026', status:'Pending'},
+  {state:'Maharashtra', form:'LWF Contribution', est:'Chakan Factory', period:'H1 2026', status:'Not Due'},
+  {state:'Delhi', form:'Register of Wages', est:'Okhla DC', period:'Aug 2026', status:'Filed'},
+  {state:'West Bengal', form:'Form III — Professional Tax', est:'Kolkata Hub', period:'Aug 2026', status:'Overdue'},
+];
+function regBadge(s){return s==='Filed'?'st-active':s==='Pending'?'st-pending':s==='Overdue'?'st-overdue':'st-new';}
+function renderRegisters(){
+  document.getElementById('complianceTableBody').innerHTML = registers.map(r=>`
+    <tr><td class="cell-strong">${r.state}</td><td>${r.form}</td><td>${r.est}</td><td>${r.period}</td>
+    <td><span class="badge-status ${regBadge(r.status)}">${r.status}</span></td></tr>`).join('');
+}
+
+/* ===== Billing ===== */
+const invoices = [
+  {no:'INV-2026-1042', client:'Orbit E-commerce', state:'KA · 29AACC1234F1Z5', source:'Payroll + Payout', taxable:5120000, gst:921600, total:6041600, status:'Paid'},
+  {no:'INV-2026-1043', client:'Everest Cold Chain', state:'MH · 27AACC5678K1Z2', source:'Payroll', taxable:1840000, gst:331200, total:2171200, status:'Pending'},
+  {no:'INV-2026-1044', client:'Nova Manufacturing', state:'MH · 27AACC9012L1Z9', source:'Service Charge', taxable:960000, gst:172800, total:1132800, status:'Overdue'},
+  {no:'INV-2026-1045', client:'Harbor Point Retail', state:'TN · 33AACC3456M1Z6', source:'Payroll + Payout', taxable:1420000, gst:255600, total:1675600, status:'Paid'},
+  {no:'INV-2026-1046', client:'Bluewave Logistics', state:'DL · 07AACC7890N1Z3', source:'Compliance Fee', taxable:280000, gst:50400, total:330400, status:'Pending'},
+];
+function billBadge(s){return s==='Paid'?'st-paid':s==='Pending'?'st-pending':'st-overdue';}
+function renderInvoices(filter='All'){
+  const rows = invoices.filter(i=>filter==='All'?true:i.status===filter);
+  document.getElementById('billingTableBody').innerHTML = rows.map(i=>`
+    <tr><td class="cell-strong">${i.no}</td><td>${i.client}</td><td>${i.state}</td><td>${i.source}</td>
+    <td>${inr(i.taxable)}</td><td>${inr(i.gst)}</td><td class="cell-strong">${inr(i.total)}</td>
+    <td><span class="badge-status ${billBadge(i.status)}">${i.status}</span></td></tr>`).join('');
+}
+document.querySelectorAll('[data-billfilter]').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('[data-billfilter]').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+  renderInvoices(c.dataset.billfilter);
+}));
+
+/* ===== Finance expenses ===== */
+const expenses = [
+  {cat:'Fuel', by:'Deepak Chauhan', site:'Panvel Cross-dock', amt:14200, status:'Pending'},
+  {cat:'Recruitment', by:'Priya S', site:'HQ Bangalore', amt:38000, status:'Approved'},
+  {cat:'Software', by:'IT Admin', site:'HQ Bangalore', amt:96000, status:'Approved'},
+  {cat:'Travel', by:'Rahul V', site:'Chakan Factory', amt:8600, status:'Pending'},
+  {cat:'Employee Welfare', by:'Anitha George', site:'Whitefield Hub', amt:22500, status:'Approved'},
+];
+function expBadge(s){return s==='Approved'?'st-active':'st-pending';}
+function renderExpenses(){
+  document.getElementById('expenseTableBody').innerHTML = expenses.map(e=>`
+    <tr><td class="cell-strong">${e.cat}</td><td>${e.by}</td><td>${e.site}</td><td>${inr(e.amt)}</td>
+    <td><span class="badge-status ${expBadge(e.status)}">${e.status}</span></td></tr>`).join('');
+}
+
+/* ===== Integrations ===== */
+const integrations = [
+  {name:'WhatsApp Business API', desc:'Notifications, KYC reminders, candidate outreach', icon:'fa-brands fa-whatsapp', color:'#17A589', status:'Connected'},
+  {name:'Biometric Device API', desc:'142 devices synced across 9 sites', icon:'fa-solid fa-fingerprint', color:'#3D6BFF', status:'Connected'},
+  {name:'BGV Provider API', desc:'Background verification chain', icon:'fa-solid fa-magnifying-glass-chart', color:'#FF8A3D', status:'Connected'},
+  {name:'PF / EPFO Portal', desc:'ECR generation & challan sync', icon:'fa-solid fa-building-shield', color:'#3D6BFF', status:'Connected'},
+  {name:'ESIC Portal', desc:'Contribution filing & IP registration', icon:'fa-solid fa-heart-pulse', color:'#E5484D', status:'Connected'},
+  {name:'Bank Verification (Penny-drop)', desc:'Account + name-match scoring', icon:'fa-solid fa-building-columns', color:'#17A589', status:'Connected'},
+  {name:'SMS Gateway', desc:'OTP, reminders, alerts', icon:'fa-solid fa-comment-sms', color:'#FF8A3D', status:'Not Configured'},
+  {name:'Naukri / WorkIndia / Apna', desc:'Job distribution channels', icon:'fa-solid fa-briefcase', color:'#3D6BFF', status:'Connected'},
+];
+function renderIntegrations(){
+  document.getElementById('integrationsRow').innerHTML = integrations.map(i=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="integration-tile">
+        <div class="it-icon" style="background:${i.color}1A;color:${i.color};"><i class="${i.icon}"></i></div>
+        <div class="flex-fill">
+          <div class="d-flex justify-content-between"><span class="fw-bold" style="font-size:13px;">${i.name}</span></div>
+          <div class="cell-sub mb-2">${i.desc}</div>
+          <span class="badge-status ${i.status==='Connected'?'st-active':'st-pending'}">${i.status}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ===== White-Label: Companies & Plans ===== */
+const companies = [
+  {name:'Summit Logistics Group', plan:'Enterprise', emp:2184, admin:'nishaanth@summitlogistics.in', status:'Active'},
+  {name:'Bright Path Retail', plan:'Premium', emp:860, admin:'admin@brightpath.in', status:'Active'},
+  {name:'Coral Foods Manufacturing', plan:'Standard', emp:412, admin:'hr@coralfoods.in', status:'Active'},
+  {name:'Vantage Facility Services', plan:'Premium', emp:1530, admin:'ops@vantagefs.in', status:'Trial'},
+  {name:'GreenLeaf Agro Staffing', plan:'Basic', emp:96, admin:'contact@greenleaf.in', status:'Suspended'},
+];
+function coStatusBadge(s){return s==='Active'?'st-active':s==='Trial'?'st-pending':'st-overdue';}
+function renderCompanies(){
+  document.getElementById('companiesTableBody').innerHTML = companies.map(c=>`
+    <tr><td class="cell-strong">${c.name}</td><td><span class="badge-status st-new">${c.plan}</span></td>
+    <td>${c.emp.toLocaleString('en-IN')}</td><td>${c.admin}</td>
+    <td><span class="badge-status ${coStatusBadge(c.status)}">${c.status}</span></td></tr>`).join('');
+}
+const plans = [
+  {name:'Basic', price:'₹4,999/mo', empLimit:'Up to 100', features:['Core HRMS','Attendance','Payroll (Direct only)'], color:'#9FABC7'},
+  {name:'Standard', price:'₹14,999/mo', empLimit:'Up to 500', features:['+ Recruitment','+ Vendor Payroll Import','+ Compliance Registers'], color:'#3D6BFF'},
+  {name:'Premium', price:'₹34,999/mo', empLimit:'Up to 2,500', features:['+ CRM & Lead Mgmt','+ Own Job Portal','+ GST Billing'], color:'#FF8A3D'},
+  {name:'Enterprise', price:'Custom', empLimit:'Unlimited', features:['+ Multi-vendor Payroll','+ API & Webhooks','+ Dedicated support'], color:'#171F33'},
+];
+function renderPlans(){
+  document.getElementById('plansRow').innerHTML = plans.map(p=>`
+    <div class="col-md-6 col-lg-3">
+      <div class="card-panel h-100" style="border-top:3px solid ${p.color};">
+        <div class="fw-bold mb-1" style="font-size:15px;">${p.name}</div>
+        <div class="fw-bold mb-1" style="font-size:20px;">${p.price}</div>
+        <div class="cell-sub mb-3">${p.empLimit} employees</div>
+        <ul style="list-style:none;padding:0;font-size:12.3px;" class="d-flex flex-column gap-2">
+          ${p.features.map(f=>`<li><i class="fa-solid fa-check me-2" style="color:${p.color};"></i>${f}</li>`).join('')}
+        </ul>
+      </div>
+    </div>`).join('');
+}
+
+/* ===== Employee self-service attendance ===== */
+const myPunches = [
+  {date:'Aug 4', status:'In', time:'08:55 AM'}, {date:'Aug 5', status:'In', time:'09:02 AM'},
+  {date:'Aug 6', status:'Late', time:'09:24 AM'}, {date:'Aug 7', status:'In', time:'08:48 AM'},
+  {date:'Aug 8', status:'Weekly Off', time:'—'}, {date:'Aug 9', status:'In', time:'08:57 AM'},
+  {date:'Aug 10', status:'Absent', time:'—'},
+];
+function renderMyAttendance(){
+  document.getElementById('myAttendanceGrid').innerHTML = myPunches.map(p=>`
+    <div class="punch-card ${p.status==='Absent'?'absent':''}">
+      <div class="fw-bold" style="font-size:12.5px;">${p.date}</div>
+      <div class="mt-2" style="font-size:12px;"><span class="punch-status-dot" style="background:${p.status==='In'?COLORS.teal:p.status==='Late'?COLORS.amber:p.status==='Absent'?COLORS.red:'#9FABC7'};"></span>${p.status}</div>
+      <div class="cell-sub mt-1">${p.time}</div>
+    </div>`).join('');
+}
+
+/* ===== Vendors ===== */
+const vendors = [
+  {name:'Apex Manpower Services', contact:'Rajiv Mehta · +91 98450 11223', emp:412, sites:'Bhiwandi WH-3, Whitefield Hub', mode:'Vendor Import', agreement:'Renewed · Mar 2027', status:'Active'},
+  {name:'StaffLine Vendors', contact:'Poornima Iyer · +91 90080 33441', emp:280, sites:'Chakan Factory', mode:'Vendor Import', agreement:'Renewed · Jan 2027', status:'Active'},
+  {name:'Direct (In-house)', contact:'Summit HR Desk', emp:1492, sites:'All company sites', mode:'Company Direct', agreement:'N/A', status:'Active'},
+  {name:'Reliable Workforce Co.', contact:'Sanjay Bhatt · +91 99870 22110', emp:0, sites:'—', mode:'Vendor Import', agreement:'Expired · Aug 2026', status:'Inactive'},
+];
+function vendorBadge(s){return s==='Active'?'st-active':'st-overdue';}
+function renderVendors(){
+  document.getElementById('vendorsTableBody').innerHTML = vendors.map(v=>`
+    <tr><td class="cell-strong">${v.name}</td><td>${v.contact}</td><td>${v.emp}</td><td>${v.sites}</td>
+    <td><span class="badge-status st-new">${v.mode}</span></td><td>${v.agreement}</td>
+    <td><span class="badge-status ${vendorBadge(v.status)}">${v.status}</span></td></tr>`).join('');
+}
+
+/* ===== Sites ===== */
+const sites = [
+  {name:'Whitefield Fulfilment Hub', code:'SITE-001', city:'Bangalore', state:'Karnataka', capacity:450, deployed:388, client:'Orbit E-commerce'},
+  {name:'Bhiwandi Warehouse 3', code:'SITE-002', city:'Bhiwandi', state:'Maharashtra', capacity:200, deployed:165, client:'Everest Cold Chain'},
+  {name:'Chakan Factory Floor', code:'SITE-003', city:'Pune', state:'Maharashtra', capacity:280, deployed:201, client:'Nova Manufacturing'},
+  {name:'Okhla Distribution Centre', code:'SITE-004', city:'New Delhi', state:'Delhi', capacity:100, deployed:95, client:'Bluewave Logistics'},
+  {name:'Hosur Store Cluster', code:'SITE-005', city:'Hosur', state:'Tamil Nadu', capacity:150, deployed:112, client:'Harbor Point Retail'},
+  {name:'Panvel Cross-dock', code:'SITE-006', city:'Panvel', state:'Maharashtra', capacity:90, deployed:58, client:'Falcon Freight'},
+];
+function renderSites(){
+  document.getElementById('sitesRow').innerHTML = sites.map(s=>{
+    const pct = Math.round((s.deployed/s.capacity)*100);
+    return `<div class="col-md-6 col-lg-4">
+      <div class="card-panel h-100">
+        <div class="fw-bold mb-1">${s.name}</div>
+        <div class="cell-sub mb-2">${s.code} · ${s.city}, ${s.state}</div>
+        <div class="d-flex justify-content-between mb-1" style="font-size:12.5px;"><span class="text-muted">Client</span><span class="fw-bold">${s.client}</span></div>
+        <div class="d-flex justify-content-between mb-1" style="font-size:12.5px;"><span class="text-muted">Deployed / Capacity</span><span class="fw-bold">${s.deployed} / ${s.capacity}</span></div>
+        <div class="progress-thin mt-2"><span style="width:${pct}%;background:${pct>=90?COLORS.red:pct>=70?COLORS.amber:COLORS.teal};"></span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== Recruitment Camps ===== */
+const camps = [
+  {venue:'Whitefield Community Hall', date:'14 Sep 2026', vacancy:'Warehouse Picker', target:60, registered:74, stage:'Screening'},
+  {venue:'Chakan Industrial Grounds', date:'18 Sep 2026', vacancy:'Machine Operator', target:40, registered:31, stage:'Scheduled'},
+  {venue:'Hosur Town Hall', date:'09 Sep 2026', vacancy:'Store Associate', target:25, registered:38, stage:'Selection Done'},
+];
+function campBadge(s){return s==='Selection Done'?'st-active':s==='Screening'?'st-review':'st-pending';}
+function renderCamps(){
+  document.getElementById('campsRow').innerHTML = camps.map(c=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="card-panel h-100">
+        <div class="fw-bold mb-1">${c.venue}</div>
+        <div class="cell-sub mb-2"><i class="fa-regular fa-calendar me-1"></i>${c.date} · ${c.vacancy}</div>
+        <div class="d-flex justify-content-between mb-1" style="font-size:12.5px;"><span class="text-muted">Target / Registered</span><span class="fw-bold">${c.target} / ${c.registered}</span></div>
+        <span class="badge-status ${campBadge(c.stage)} mt-2 d-inline-block">${c.stage}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ===== CRM Campaigns ===== */
+const campaigns = [
+  {name:'Warehouse Hiring Blast — Aug', channel:'WhatsApp + SMS', segment:'Hot + Warm Leads', reached:412, conv:'18%', status:'Active'},
+  {name:'Dormant Lead Revival', channel:'Email', segment:'Dormant (90+ days)', reached:186, conv:'6%', status:'Active'},
+  {name:'Festive Payroll Outreach', channel:'Email + WhatsApp', segment:'Payroll Outsourcing', reached:94, conv:'11%', status:'Completed'},
+];
+function renderCampaigns(){
+  document.getElementById('campaignsTableBody').innerHTML = campaigns.map(c=>`
+    <tr><td class="cell-strong">${c.name}</td><td>${c.channel}</td><td>${c.segment}</td><td>${c.reached}</td><td>${c.conv}</td>
+    <td><span class="badge-status ${c.status==='Active'?'st-active':'st-new'}">${c.status}</span></td></tr>`).join('');
+}
+
+/* ===== Shift Roster & Regularization ===== */
+const shiftRoster = [
+  {name:'Ravi Kumar S', site:'Whitefield Hub', shift:'Morning (8AM–5PM)', timing:'08:00–17:00', off:'Sunday', status:'Active'},
+  {name:'Sneha Pillai', site:'Bhiwandi WH-3', shift:'General', timing:'09:00–18:00', off:'Sunday', status:'Active'},
+  {name:'Mohammed Azhar', site:'Chakan Factory', shift:'Night (10PM–7AM)', timing:'22:00–07:00', off:'Saturday', status:'Active'},
+  {name:'Deepak Chauhan', site:'Panvel Cross-dock', shift:'Rotational', timing:'Varies weekly', off:'Rotational', status:'Active'},
+];
+function renderShiftRoster(){
+  document.getElementById('shiftTableBody').innerHTML = shiftRoster.map(s=>`
+    <tr><td class="cell-strong">${s.name}</td><td>${s.site}</td><td>${s.shift}</td><td>${s.timing}</td><td>${s.off}</td>
+    <td><span class="badge-status st-active">${s.status}</span></td></tr>`).join('');
+}
+const regularizations = [
+  {name:'Anitha George', date:'05 Aug 2026', reason:'Missing punch', requested:'Manual check-in 09:15 AM', status:'Pending'},
+  {name:'Kavitha Ramesh', date:'02 Aug 2026', reason:'Work from home', requested:'Full day WFH', status:'Approved'},
+  {name:'Suraj Yadav', date:'29 Jul 2026', reason:'Wrong punch', requested:'Correct out-time to 18:10', status:'Rejected'},
+];
+function regReqBadge(s){return s==='Approved'?'st-active':s==='Pending'?'st-pending':'st-overdue';}
+function renderReg(){
+  document.getElementById('regTableBody').innerHTML = regularizations.map(r=>`
+    <tr><td class="cell-strong">${r.name}</td><td>${r.date}</td><td>${r.reason}</td><td>${r.requested}</td>
+    <td><span class="badge-status ${regReqBadge(r.status)}">${r.status}</span></td>
+    <td>${r.status==='Pending'?'<button class="btn-ghost-sm" style="color:var(--teal-500);"><i class="fa-solid fa-check"></i></button><button class="btn-ghost-sm" style="color:var(--red-500);"><i class="fa-solid fa-xmark"></i></button>':''}</td></tr>`).join('');
+}
+document.querySelectorAll('[data-atttab]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-atttab]').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  ['feed','shift','reg'].forEach(id=>document.getElementById('att-'+id).style.display = (id===t.dataset.atttab?'block':'none'));
+}));
+
+/* ===== Leave requests & Holidays ===== */
+const leaveRequests = [
+  {name:'Priyanka Das', type:'Sick Leave', dates:'12–13 Aug 2026', days:2, applied:'11 Aug 2026', status:'Approved'},
+  {name:'Rohit Bansal', type:'Casual Leave', dates:'20 Aug 2026', days:1, applied:'18 Aug 2026', status:'Pending'},
+  {name:'Farida Khatoon', type:'Earned Leave', dates:'25–29 Aug 2026', days:5, applied:'10 Aug 2026', status:'Pending'},
+  {name:'Imran Sheikh', type:'Maternity-linked Care Leave', dates:'01–03 Aug 2026', days:3, applied:'28 Jul 2026', status:'Approved'},
+];
+function renderLeaveRequests(){
+  document.getElementById('leaveTableBody').innerHTML = leaveRequests.map(l=>`
+    <tr><td class="cell-strong">${l.name}</td><td>${l.type}</td><td>${l.dates}</td><td>${l.days}</td><td>${l.applied}</td>
+    <td><span class="badge-status ${regReqBadge(l.status)}">${l.status}</span></td>
+    <td>${l.status==='Pending'?'<button class="btn-ghost-sm" style="color:var(--teal-500);"><i class="fa-solid fa-check"></i></button><button class="btn-ghost-sm" style="color:var(--red-500);"><i class="fa-solid fa-xmark"></i></button>':''}</td></tr>`).join('');
+}
+const holidays = [
+  {state:'Karnataka', name:'Ganesh Chaturthi', date:'26 Aug 2026', type:'Mandatory'},
+  {state:'Maharashtra', name:'Ganesh Chaturthi', date:'26 Aug 2026', type:'Mandatory'},
+  {state:'Tamil Nadu', name:'Vinayagar Chaturthi', date:'26 Aug 2026', type:'Mandatory'},
+  {state:'All States', name:'Gandhi Jayanti', date:'02 Oct 2026', type:'Mandatory'},
+  {state:'Delhi', name:'Diwali', date:'08 Nov 2026', type:'Mandatory'},
+  {state:'West Bengal', name:'Durga Puja', date:'19–22 Oct 2026', type:'Optional'},
+];
+function renderHolidays(){
+  document.getElementById('holidayRow').innerHTML = holidays.map(h=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="card-panel h-100">
+        <div class="fw-bold mb-1">${h.name}</div>
+        <div class="cell-sub mb-2"><i class="fa-regular fa-calendar me-1"></i>${h.date}</div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="cell-sub">${h.state}</span>
+          <span class="badge-status ${h.type==='Mandatory'?'st-active':'st-new'}">${h.type}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+document.querySelectorAll('[data-leavetab]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-leavetab]').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  ['requests','calendar'].forEach(id=>document.getElementById('leave-'+id).style.display = (id===t.dataset.leavetab?'block':'none'));
+}));
+
+/* ===== Assets ===== */
+const assets = [
+  {id:'AST-3301', type:'Laptop — Dell Latitude', assignedTo:'Anitha George', site:'HQ Bangalore', issued:'02 Jan 2025', condition:'Good', status:'Assigned'},
+  {id:'AST-3302', type:'Safety Vest + Helmet Kit', assignedTo:'Ravi Kumar S', site:'Whitefield Hub', issued:'14 Jun 2026', condition:'Good', status:'Assigned'},
+  {id:'AST-3303', type:'Handheld Scanner', assignedTo:'Sneha Pillai', site:'Bhiwandi WH-3', issued:'20 Mar 2026', condition:'Fair', status:'Assigned'},
+  {id:'AST-3304', type:'Delivery Bike', assignedTo:'Deepak Chauhan', site:'Panvel Cross-dock', issued:'11 Feb 2026', condition:'Under Repair', status:'Repair'},
+  {id:'AST-3305', type:'ID Card Printer', assignedTo:'HR Admin', site:'HQ Bangalore', issued:'05 May 2024', condition:'Good', status:'Assigned'},
+  {id:'AST-3306', type:'Safety Vest Kit', assignedTo:'—', site:'Chakan Factory', issued:'—', condition:'Lost', status:'Lost'},
+];
+function assetBadge(s){return s==='Assigned'?'st-active':s==='Repair'?'st-pending':'st-overdue';}
+function renderAssets(){
+  document.getElementById('assetsTableBody').innerHTML = assets.map(a=>`
+    <tr><td class="cell-strong">${a.id}</td><td>${a.type}</td><td>${a.assignedTo}</td><td>${a.site}</td><td>${a.issued}</td><td>${a.condition}</td>
+    <td><span class="badge-status ${assetBadge(a.status)}">${a.status}</span></td></tr>`).join('');
+}
+
+/* ===== HR Letters & Digital ID ===== */
+const hrLetters = [
+  {name:'Ravi Kumar S', type:'Offer Letter', date:'01 Jul 2026', status:'Signed'},
+  {name:'Sneha Pillai', type:'Appointment Letter', date:'15 Mar 2026', status:'Signed'},
+  {name:'Suraj Yadav', type:'Relieving Letter', date:'20 Aug 2026', status:'Pending eSign'},
+  {name:'Priyanka Das', type:'Promotion Letter', date:'01 Aug 2026', status:'Signed'},
+];
+function letterBadge(s){return s==='Signed'?'st-active':'st-pending';}
+function renderLetters(){
+  document.getElementById('lettersTableBody').innerHTML = hrLetters.map(l=>`
+    <tr><td class="cell-strong">${l.name}</td><td>${l.type}</td><td>${l.date}</td>
+    <td><span class="badge-status ${letterBadge(l.status)}">${l.status}</span></td>
+    <td><button class="btn-ghost-sm"><i class="fa-regular fa-file-pdf"></i></button></td></tr>`).join('');
+}
+function renderDigitalIds(){
+  document.getElementById('digitalIdRow').innerHTML = employees.slice(0,4).map((e,i)=>`
+    <div class="col-md-6 col-lg-3">
+      <div class="card-panel h-100 text-center" style="background:var(--navy-950);color:#fff;border:none;">
+        <div class="avatar-sm mx-auto mb-2" style="width:50px;height:50px;font-size:16px;background:var(--amber-500);color:#12131a;">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+        <div class="fw-bold" style="font-size:13px;">${e.name}</div>
+        <div style="font-size:11px;color:#9FABC7;">${e.dept}</div>
+        <div style="font-size:10.5px;color:#7885A6;margin-top:6px;">EMP-${10000+i} · ${e.site}</div>
+        <div class="mt-2"><i class="fa-solid fa-qrcode" style="font-size:22px;color:#fff;"></i></div>
+      </div>
+    </div>`).join('');
+}
+document.querySelectorAll('[data-hrtab]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-hrtab]').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  ['letters','digitalid'].forEach(id=>document.getElementById('hr-'+id).style.display = (id===t.dataset.hrtab?'block':'none'));
+}));
+
+/* ===== Helpdesk Queue (admin) ===== */
+const helpdeskTickets = [
+  {id:'#HD-2291', name:'Arun Selvam', cat:'Salary Query', raised:'09 Aug 2026', assigned:'Payroll Team', status:'In Progress'},
+  {id:'#HD-2288', name:'Neha Joshi', cat:'KYC', raised:'08 Aug 2026', assigned:'HR Desk', status:'Open'},
+  {id:'#HD-2280', name:'Rohit Bansal', cat:'Leave', raised:'06 Aug 2026', assigned:'Site HR', status:'Resolved'},
+  {id:'#HD-2276', name:'Lakshmi Priya', cat:'Assets', raised:'05 Aug 2026', assigned:'Admin Team', status:'Open'},
+  {id:'#HD-2266', name:'Farida Khatoon', cat:'Documents', raised:'03 Aug 2026', assigned:'HR Desk', status:'Resolved'},
+];
+function hdBadge(s){return s==='Resolved'?'st-active':s==='Open'?'st-pending':'st-review';}
+function renderHelpdeskAdmin(filter='All'){
+  const rows = helpdeskTickets.filter(t=>filter==='All'?true:t.status===filter);
+  document.getElementById('helpdeskAdminTableBody').innerHTML = rows.map(t=>`
+    <tr><td class="cell-strong">${t.id}</td><td>${t.name}</td><td>${t.cat}</td><td>${t.raised}</td><td>${t.assigned}</td>
+    <td><span class="badge-status ${hdBadge(t.status)}">${t.status}</span></td></tr>`).join('');
+}
+document.querySelectorAll('[data-hdfilter]').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('[data-hdfilter]').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+  renderHelpdeskAdmin(c.dataset.hdfilter);
+}));
+
+/* ===== Reports & Analytics hub ===== */
+const reportAreas = [
+  {area:'Employee', icon:'fa-users', reports:'Master, joining, exit, department, vendor, site'},
+  {area:'Attendance', icon:'fa-fingerprint', reports:'Daily/monthly, late/early, overtime, regularization'},
+  {area:'Leave', icon:'fa-calendar-days', reports:'Register, balance, utilization, trends'},
+  {area:'Recruitment', icon:'fa-user-plus', reports:'Vacancy, campaign, source, selections, joining'},
+  {area:'Workforce', icon:'fa-diagram-project', reports:'Required, deployed, shortage, absenteeism'},
+  {area:'Payroll', icon:'fa-money-check-dollar', reports:'Register, earnings, deductions, arrears'},
+  {area:'Payout', icon:'fa-sack-dollar', reports:'Weekly, fuel, incentive, site, vendor'},
+  {area:'Compliance', icon:'fa-shield-halved', reports:'PF, ESIC, PT, LWF, TDS, registers, challans'},
+  {area:'Billing', icon:'fa-file-invoice-dollar', reports:'GST invoices, client, state, receivables'},
+  {area:'Finance', icon:'fa-chart-pie', reports:'Expenses, cost centre, profitability'},
+  {area:'Assets', icon:'fa-boxes-stacked', reports:'Register, assignment, return, damage'},
+];
+function renderReports(){
+  document.getElementById('reportsRow').innerHTML = reportAreas.map(r=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="card-panel h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="metric-icon" style="background:var(--amber-100);color:var(--amber-600);"><i class="fa-solid ${r.icon}"></i></div>
+          <button class="btn-outline-soft" style="padding:5px 10px;font-size:11px;"><i class="fa-solid fa-download me-1"></i>Export</button>
+        </div>
+        <div class="fw-bold mb-1">${r.area} Reports</div>
+        <div class="cell-sub">${r.reports}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ===== Import / Export Centre ===== */
+const importTypes = ['Employees','Salary','Attendance','Leave','Vendor Payroll','Payouts','Claims','Compliance Data'];
+const exportTypes = ['Employee Master (Excel)','Payroll Register (Excel)','Bank Transfer File','Compliance Filing Pack (PDF)','GST Invoices (PDF)','Attendance Report (CSV)'];
+function renderImportExport(){
+  document.getElementById('importList').innerHTML = importTypes.map(i=>`
+    <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #EEF0F6;">
+      <span style="font-size:13px;font-weight:600;">${i}</span>
+      <button class="btn btn-outline-soft" style="padding:6px 12px;font-size:11.5px;"><i class="fa-solid fa-upload me-1"></i>Upload</button>
+    </div>`).join('');
+  document.getElementById('exportList').innerHTML = exportTypes.map(e=>`
+    <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #EEF0F6;">
+      <span style="font-size:13px;font-weight:600;">${e}</span>
+      <button class="btn btn-outline-soft" style="padding:6px 12px;font-size:11.5px;"><i class="fa-solid fa-download me-1"></i>Export</button>
+    </div>`).join('');
+}
+
+/* ============ CHARTS ============ */
+let chartsInit = false;
+function renderCharts(){
+  if(chartsInit) return; chartsInit = true;
+
+  new Chart(document.getElementById('chartDeployment'), {
+    type:'bar',
+    data:{ labels:['Mar','Apr','May','Jun','Jul','Aug'],
+      datasets:[
+        {label:'Deployed', data:[1780,1860,1920,1990,2060,2184], backgroundColor:COLORS.amber, borderRadius:6, barPercentage:.55},
+        {label:'Required', data:[1900,1950,2020,2100,2180,2260], type:'line', borderColor:COLORS.navy, backgroundColor:COLORS.navy, tension:.35, pointRadius:3}
+      ]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartPipeline'), {
+    type:'doughnut',
+    data:{ labels:stages, datasets:[{data: stages.map(s=>leads.filter(l=>l.stage===s).reduce((a,b)=>a+b.value,0)),
+      backgroundColor:['#CBD2E3','#9FABC7','#3D6BFF','#FF8A3D','#EA6F1F','#17A589'], borderWidth:0 }]},
+    options:{plugins:{legend:{position:'bottom', labels:{boxWidth:8,padding:10,font:{size:10.5}}}}, cutout:'68%'}
+  });
+
+  new Chart(document.getElementById('chartFunnelMini'), {
+    type:'bar',
+    data:{ labels:['Applied','Screened','Interview','Offer','Joined'], datasets:[{data:[420,286,140,66,41], backgroundColor:COLORS.blue, borderRadius:6}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:COLORS.grid}}, y:{grid:{display:false}}}}
+  });
+
+  new Chart(document.getElementById('chartCostForecast'), {
+    type:'line',
+    data:{ labels:['Sep','Oct','Nov','Dec','Jan','Feb'], datasets:[{label:'Forecast Cost (₹L)', data:[382,391,405,398,412,428], borderColor:COLORS.amber, backgroundColor:'rgba(255,138,61,.12)', fill:true, tension:.35}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartSourceConv'), {
+    type:'bar',
+    data:{ labels:['Own Portal','Naukri','WorkIndia','Apna','Referral'], datasets:[{label:'Conversion %', data:[38,24,19,27,44], backgroundColor:COLORS.teal, borderRadius:6}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartCostChannel'), {
+    type:'bar',
+    data:{ labels:['Own Portal','Naukri','WorkIndia','Apna','Referral'], datasets:[{label:'Cost/Joining (₹)', data:[420,1850,1620,980,300], backgroundColor:COLORS.navy, borderRadius:6}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartRevCost'), {
+    type:'line',
+    data:{ labels:['Mar','Apr','May','Jun','Jul','Aug'],
+      datasets:[
+        {label:'Revenue', data:[420,438,455,470,492,512], borderColor:COLORS.teal, backgroundColor:'rgba(23,165,137,.1)', fill:true, tension:.35},
+        {label:'Cost', data:[350,362,375,381,392,401], borderColor:COLORS.red, backgroundColor:'rgba(229,72,77,.08)', fill:true, tension:.35}
+      ]},
+    options:{plugins:{legend:{position:'bottom',labels:{boxWidth:8,font:{size:10.5}}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartClientProfit'), {
+    type:'bar',
+    data:{ labels:['Orbit','Everest','Nova','Harbor Pt','Bluewave'], datasets:[{label:'Margin %', data:[18,12,9,15,6], backgroundColor:COLORS.amber, borderRadius:6}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{grid:{color:COLORS.grid}}}}
+  });
+
+  new Chart(document.getElementById('chartExpense'), {
+    type:'doughnut',
+    data:{ labels:['Fuel','Recruitment','Software','Travel','Welfare','Other'], datasets:[{data:[142,380,960,86,225,140], backgroundColor:['#FF8A3D','#3D6BFF','#17A589','#E5484D','#9FABC7','#171F33'], borderWidth:0}]},
+    options:{plugins:{legend:{position:'bottom', labels:{boxWidth:8,padding:8,font:{size:10}}}}, cutout:'62%'}
+  });
+}
+
+/* ============ INIT ============ */
+function populateRoleData(){}
+renderKanban(); renderLeadsTable(); renderManpower(); renderJobs(); renderCandidates();
+renderEmployees(); renderPunch(); renderPayroll(); renderRegisters(); renderInvoices();
+renderExpenses(); renderIntegrations(); renderCompanies(); renderPlans(); renderMyAttendance();
+renderVendors(); renderSites(); renderCamps(); renderCampaigns(); renderShiftRoster(); renderReg();
+renderLeaveRequests(); renderHolidays(); renderAssets(); renderLetters(); renderDigitalIds();
+renderHelpdeskAdmin(); renderReports(); renderImportExport();
+</script>
+</body>
+</html>
